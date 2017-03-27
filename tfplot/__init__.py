@@ -4,3 +4,5 @@ from __future__ import print_function
 
 import matplotlib
 matplotlib.use('Agg')
+
+from .ops import plot
