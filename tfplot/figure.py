@@ -5,6 +5,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 
 def to_array(fig):
@@ -22,8 +23,12 @@ def to_array(fig):
     Args:
       fig: A `matplotlib.figure.Figure` object.
     """
-    assert fig.canvas is not None, \
-        'fig must have canvas -- has it been created by plt.figure() ?'
+
+    #assert fig.canvas is not None, \
+    #    'fig must have canvas -- has it been created by plt.figure() ?'
+    if fig.canvas is None:
+        # attach a new canvas
+        FigureCanvasAgg(fig)
 
     fig.canvas.draw()
     w, h = fig.canvas.get_width_height()

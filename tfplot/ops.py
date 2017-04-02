@@ -47,7 +47,8 @@ def plot(plot_func, in_tensors, name='Plot',
                             "but given {}".format(type(fig)))
 
         # render fig into numpy array.
-        return figure.to_array(fig)
+        image = figure.to_array(fig)
+        return image
 
     im = tf.py_func(_render_image, in_tensors, Tout=tf.uint8,
                     name=name)
