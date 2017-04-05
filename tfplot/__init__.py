@@ -6,3 +6,5 @@ import matplotlib
 matplotlib.use('Agg')
 
 from .ops import plot
+
+from matplotlib.figure import Figure
