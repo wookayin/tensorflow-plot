@@ -46,7 +46,7 @@ def plot_many(name, plot_func, in_tensors,
     where plots could be drawn in a batch manner. This is a batch version
     of `tfplot.summary.plot()`.
 
-    Specifically, all the input tensors `in_tensors` to plot_func` will be
+    Specifically, all the input tensors `in_tensors` to `plot_func` is
     assumed to have the same batch size. Tensors corresponding to a single
     batch element will be passed to `plot_func` as input.
 
@@ -69,27 +69,10 @@ def plot_many(name, plot_func, in_tensors,
       A scalar `Tensor` of type `string`. The serialized `Summary` protocol
       buffer (tensorflow operation).
     """
-    # unstack all the tensors in in_tensors
-    args = []
-    batch_size = None
 
-    with tf.name_scope(name):
-        for in_tensor in in_tensors:
-            in_tensor = tf.convert_to_tensor(in_tensor)
-            arg_unpacked = tf.unstack(in_tensor, name=in_tensor.op.name + '_unstack')
-            if batch_size is not None and batch_size != len(arg_unpacked):
-                raise ValueError("All tensors in in_tensors should have the same batch size")
-            batch_size = len(arg_unpacked)
-            args.append(arg_unpacked)
-
-        # generate plots for each batch element
-        ims = []
-        for k, arg in enumerate(zip(*args)):
-            im = ops.plot(plot_func, arg, name=('Plot_%d' % k), **kwargs)
-            ims.append(im)
-
-        # combine the generated plots and use them as image summary
-        im_packed = tf.stack(ims, name='PlotStack')
-        summary = tf.summary.image(name="ImageSummary", tensor=im_packed,
-                                   max_outputs=max_outputs, collections=collections)
+    with tf.name_scope(name=name) as scope:
+        im_batch = ops.plot_many(plot_func, in_tensors, name=scope, **kwargs)
+        summary = tf.summary.image(name="ImageSummary", tensor=im_batch,
+                                   max_outputs=max_outputs,
+                                   collections=collections)
     return summary
