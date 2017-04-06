@@ -4,6 +4,10 @@ TensorFlow Plot
 A [TensorFlow][tensorflow] utility for providing matplotlib-based **plot** operations
 — [TensorBoard][tensorboard] ❤️ [Matplotlib][matplotlib].
 
+<p align="center">
+<i> 🚧 Under Construction —  API might change!</i>
+</p>
+
 It allows us to draw **_any_** [matplotlib][matplotlib] plots or figures into images,
 as a part of TensorFlow computation graph.
 Especially, we can easily any plot and see the result image
@@ -18,8 +22,8 @@ Quick Overview
 
 Simply define a python function for plotting that takes `numpy.ndarray` values as input,
 draw a plot, and return it as a `matplotlib.figure.Figure` object.
-Then, the API `tfplot.plot()` will wrap this function as a TensorFlow operation,
-which will produce a RGB image tensor `[height, width, 3]` containg the resulting plot.
+Then, `tfplot.plot()` will wrap this function as a TensorFlow operation,
+which will produce a RGB image tensor `[height, width, 3]` containing the resulting plot.
 
 ```python
 import tfplot
@@ -67,6 +71,7 @@ and do it like:
 def figure_heatmap(heatmap):
     fig = matplotlib.figure.Figure()   # or just `fig = tfplot.Figure()`
     ax = fig.add_subplot(1, 1, 1)      # ax: AxesSubplot
+    # or, just `fig, ax = tfplot.subplots()`
     ax.imshow(heatmap)
     return fig                         # fig: Figure
 ```
