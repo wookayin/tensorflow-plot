@@ -6,5 +6,6 @@ import matplotlib
 matplotlib.use('Agg')
 
 from .ops import plot, plot_many
+from .figure import subplots
 
 from matplotlib.figure import Figure

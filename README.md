@@ -26,7 +26,7 @@ import tfplot
 
 def figure_heatmap(heatmap, cmap='jet'):
     # draw a heatmap with a colorbar
-    fig, ax = plt.subplots(figsize=(4, 3))
+    fig, ax = tfplot.subplots(figsize=(4, 3))
     im = ax.imshow(heatmap, cmap=cmap)
     fig.colorbar(im)
     return fig
@@ -51,7 +51,7 @@ when creating and drawing plots.
 This is because [pyplot] APIs are not *thread-safe*,
 while the TensorFlow plot operations are usually executed in multi-threaded manners.
 
-For example, avoid
+For example, avoid any use of `pyplot` (or `plt`):
 
 ```python
 # DON'T DO LIKE THIS !!!
@@ -70,6 +70,10 @@ def figure_heatmap(heatmap):
     ax.imshow(heatmap)
     return fig                         # fig: Figure
 ```
+
+For example, `tfplot.subplots()` is a good replacement for `plt.subplots()`
+to use inside plot functions.
+
 
 [matplotlib]: http://matplotlib.org/
 [tensorflow]: https://www.tensorflow.org/
