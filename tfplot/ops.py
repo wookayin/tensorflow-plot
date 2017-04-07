@@ -123,7 +123,49 @@ def plot_many(plot_func, in_tensors, name='PlotMany',
     return im_packed
 
 
+
+def wrap(plot_func, batch=False, name=None):
+    '''
+    Wrap a plot function as a TensorFlow operation. It will return a python
+    function that creates a TensorFlow plot operation applying the arguments
+    as input.
+
+    For example, if `plot_func(x)` is a python function that takes two
+    arrays as input, and draw a plot by returning a matplotlib Figure,
+    we can wrap this function as a Tensor factory, such as:
+
+    ```python
+    tf_plot = tfplot.wrap(plot_func, name="MyPlot")
+    # x, y = get_batch_inputs(batch_size=4, ...)
+
+    plot_x = tf_plot(x)   # Tensor("MyPlot:0", shape=(4, ?, ?, 3), dtype=uint8)
+    plot_y = tf_plot(y)   # Tensor("MyPlot_1:0", shape=(4, ?, ?, 3), dtype=uint8)
+    ```
+
+    Args:
+      plot_func: A python function or callable to wrap. See the documentation
+        of `tfplot.plot()` for details.
+      batch: If True, all the tensors passed as argument will be
+        assumed to be batched. Default value is False.
+      name: A default name for the operation (optional). If not given, the
+        name of `plot_func` will be used.
+
+    Returns:
+      A python function that will create a TensorFlow plot operation,
+      passing the provied arguments.
+    '''
+
+    def _wrapped_fn(*args, **kwargs_call):
+        _plot = plot_many if batch else plot
+        return _plot(plot_func, list(args),
+                     name=name or plot_func.__name__, **kwargs_call)
+
+    _wrapped_fn.__name__ = 'wrapped_fn[%s]' % plot_func
+    return _wrapped_fn
+
+
 __all__ = (
     'plot',
     'plot_many',
+    'wrap',
 )

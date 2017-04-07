@@ -5,7 +5,7 @@ from __future__ import print_function
 import matplotlib
 matplotlib.use('Agg')
 
-from .ops import plot, plot_many
+from .ops import plot, plot_many, wrap
 from .figure import subplots
 
 from matplotlib.figure import Figure
