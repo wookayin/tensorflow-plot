@@ -4,7 +4,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import six
+
 import tensorflow as tf
+import numpy as np
 
 from . import figure
 from matplotlib.figure import Figure
@@ -37,6 +40,17 @@ def plot(plot_func, in_tensors, name='Plot',
 
     if not hasattr(plot_func, '__call__'):
         raise TypeError("plot_func should be callable")
+
+    if not isinstance(name, six.string_types):
+        raise TypeError("name should be str or unicode, " +
+                        "given {}".format(type(name)))
+
+    if not isinstance(in_tensors, (list, tuple)):
+        if isinstance(in_tensors, (tf.Tensor, np.ndarray, np.number)):
+            in_tensors = [in_tensors]
+        else:
+            raise TypeError("in_tensors should be a list of Tensors, " +
+                            "given {}".format(type(in_tensors)))
 
     def _render_image(*args):
         fig = plot_func(*args, **kwargs)
@@ -90,7 +104,7 @@ def plot_many(plot_func, in_tensors, name='PlotMany',
             in_tensor = tf.convert_to_tensor(in_tensor)
             arg_unpacked = tf.unstack(in_tensor, name=in_tensor.op.name + '_unstack')
             if batch_size is not None and batch_size != len(arg_unpacked):
-                raise ValueError("All tensors in in_tensors should have" +
+                raise ValueError("All tensors in in_tensors should have " +
                                  "the same batch size : %d != %d for %s" % (
                                      batch_size, len(arg_unpacked), in_tensor
                                  ))
