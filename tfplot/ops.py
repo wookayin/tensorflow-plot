@@ -5,6 +5,7 @@ from __future__ import division
 from __future__ import print_function
 
 import six
+import re
 
 import tensorflow as tf
 import numpy as np
@@ -158,10 +159,18 @@ def wrap(plot_func, batch=False, name=None):
     def _wrapped_fn(*args, **kwargs_call):
         _plot = plot_many if batch else plot
         return _plot(plot_func, list(args),
-                     name=name or plot_func.__name__, **kwargs_call)
+                     name=name or _clean_name(plot_func.__name__),
+                     **kwargs_call)
 
     _wrapped_fn.__name__ = 'wrapped_fn[%s]' % plot_func
     return _wrapped_fn
+
+
+def _clean_name(s):
+    """
+    Convert a string to a valid variable, function, or scope name.
+    """
+    return re.sub('[^0-9a-zA-Z_]', '', s)
 
 
 __all__ = (
