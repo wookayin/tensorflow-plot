@@ -168,10 +168,13 @@ def wrap(plot_func, _sentinel=None,
         raise RuntimeError("Invalid call: it can have only one unnamed argument, " +
                            "please pass named arguments for batch, name, etc.")
 
+    if name is None:
+        name = _clean_name(plot_func.__name__)
+
     def _wrapped_fn(*args, **kwargs_call):
         _plot = plot_many if batch else plot
-        return _plot(plot_func, list(args),
-                     name=name or _clean_name(plot_func.__name__),
+        _name = kwargs_call.pop('name', name)
+        return _plot(plot_func, list(args), name=_name,
                      **_merge_kwargs(kwargs, kwargs_call))
 
     _wrapped_fn.__name__ = 'wrapped_fn[%s]' % plot_func
@@ -269,10 +272,13 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
             raise TypeError("axesplot_func must take 'ax' parameter to specify Axes")
         fig_axesplot_func = _fig_axesplot_fn
 
+    if name is None:
+        name = _clean_name(axesplot_func.__name__)
+
     def _wrapped_factory_fn(*args, **kwargs_call):
         _plot = plot_many if batch else plot
-        return _plot(fig_axesplot_func, list(args),
-                     name=name or _clean_name(axesplot_func.__name__),
+        _name = kwargs_call.pop('name', name)
+        return _plot(fig_axesplot_func, list(args), name=_name,
                      **kwargs_call)
 
     _wrapped_factory_fn.__name__ = 'wrapped_axesplot_fn[%s]' % axesplot_func
