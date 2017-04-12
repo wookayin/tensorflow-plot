@@ -20,14 +20,25 @@ as an image summary in [TensorBoard][tensorboard].
 Quick Overview
 --------------
 
-Simply define a python function for plotting that takes `numpy.ndarray` values as input,
+We can wrap *any* pre-existing functions for plotting, e.g.,
+[`seaborn.heatmap`](http://seaborn.pydata.org/generated/seaborn.heatmap.html) or [matplotlib `Axes`](https://matplotlib.org/api/axes_api.html),
+as a Tensorflow op:
+
+```python tfplot
+import tfplot
+import seaborn.apionly as sns
+
+tf_heatmap = tfplot.wrap_axesplot(sns.heatmap, figsize=(4, 4), batch=True)
+tf.summary.image("attention_maps", tf_heatmap(attention_maps))
+```
+
+Alternatively, if you need more flexibility on plots,
+just define a python function that takes `numpy.ndarray` values as input,
 draw a plot, and return it as a `matplotlib.figure.Figure` object.
 Then, `tfplot.plot()` will wrap this function as a TensorFlow operation,
 which will produce a RGB image tensor `[height, width, 3]` containing the resulting plot.
 
 ```python
-import tfplot
-
 def figure_heatmap(heatmap, cmap='jet'):
     # draw a heatmap with a colorbar
     fig, ax = tfplot.subplots(figsize=(4, 3))
@@ -45,6 +56,16 @@ tfplot.summary.plot("heatmap_summary", figure_heatmap, [heatmap_tensor])
 Please take a look at the
 [the showcase][examples-showcase] or [examples directory][examples-dir]
 for more examples and use cases.
+
+
+Installation
+------------
+
+I will upload the package to PyPI once the API and documentation are stablized. Until then, we can try:
+
+```
+pip install git+https://github.com/wookayin/tensorflow-plot.git@master
+```
 
 Note
 ----
