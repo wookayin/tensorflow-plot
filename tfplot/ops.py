@@ -23,23 +23,24 @@ def plot(plot_func, in_tensors, name='Plot',
     Create a TensorFlow op which draws plot in an image. The resulting
     image is in a 3-D uint8 tensor.
 
-    Given a python function `plot_func`, which takes numpy arrays as its
-    inputs (the evaluations of `in_tensors`) and returns a matplotlib
-    `figure` object as its outputs, wrap this function as a TensorFlow op.
+    Given a python function ``plot_func``, which takes numpy arrays as its
+    inputs (the evaluations of ``in_tensors``) and returns a matplotlib
+    `Figure` object as its outputs, wrap this function as a TensorFlow op.
     The returning figure will be rendered as a RGB image upon execution.
 
     Args:
-      plot_func: A python function or callable, which accepts numpy
-        `ndarray` objects as an argument that match the corresponding
-        `tf.Tensor` objects in `in_tensors`. It should return a new instance
-        of `matplotlib.figure.Figure`, which contains the resulting plot image.
-      in_tensors: A list of `Tensor` objects.
+      plot_func: a python function or callable
+        The function which accepts numpy `ndarray` objects as an argument
+        that match the corresponding `tf.Tensor` objects in ``in_tensors``.
+        It should return a new instance of ``matplotlib.figure.Figure``,
+        which contains the resulting plot image.
+      in_tensors: A list of `tf.Tensor` objects.
       name: A name for the operation (optional).
-      kwargs: Additional keyword arguments passed to `plot_func` (optional).
+      kwargs: Additional keyword arguments passed to ``plot_func`` (optional).
 
     Returns:
-      A single `uint8` `Tensor` of shape `(?, ?, 3)`, containing the plot
-      image that `plot_func` computes.
+      A single `uint8` `Tensor` of shape ``(?, ?, 3)``, containing the plot
+      image that ``plot_func`` computes.
     '''
 
     if not hasattr(plot_func, '__call__'):
@@ -77,26 +78,26 @@ def plot(plot_func, in_tensors, name='Plot',
 def plot_many(plot_func, in_tensors, name='PlotMany',
               **kwargs):
     '''
-    A batch version of `plot`.  Create a TensorFlow op which draws
+    A batch version of ``plot``.  Create a TensorFlow op which draws
     a plot for each image. The resulting images are given in a 4-D `uint8`
-    Tensor of shape `[batch_size, height, width, 3]`.
+    Tensor of shape ``[batch_size, height, width, 3]``.
 
     Args:
       plot_func: A python function or callable, which accepts numpy
         `ndarray` objects as an argument that match the corresponding
-        `tf.Tensor` objects in `in_tensors`. It should return a new instance
-        of `matplotlib.figure.Figure`, which contains the resulting plot image.
+        `tf.Tensor` objects in ``in_tensors``. It should return a new instance
+        of ``matplotlib.figure.Figure``, which contains the resulting plot image.
         The shape (height, width) of generated figure for each plot should
         be same.
-      in_tensors: A list of `Tensor` objects.
+      in_tensors: A list of `tf.Tensor` objects.
       name: A name for the operation (optional).
       kwargs: Additional keyword arguments passed to `plot_func` (optional).
 
     Returns:
-      A single `uint8` `Tensor` of shape `(batch_size, ?, ?, 3)`, containing
-      the `batch_size` plot images each of which is computed by `plot_func`,
+      A single `uint8` `Tensor` of shape ``(batch_size, ?, ?, 3)``, containing
+      the `batch_size` plot images each of which is computed by ``plot_func``,
       where `batch_size` is the number of batch elements in the each tensor
-      from `in_tensors`.
+      from ``in_tensors``.
     '''
 
     # unstack all the tensors in in_tensors
@@ -136,26 +137,26 @@ def wrap(plot_func, _sentinel=None,
     function that creates a TensorFlow plot operation applying the arguments
     as input.
 
-    For example, if `plot_func(x)` is a python function that takes two
+    For example, if ``plot_func`` is a python function that takes two
     arrays as input, and draw a plot by returning a matplotlib Figure,
-    we can wrap this function as a Tensor factory, such as:
+    we can wrap this function as a `Tensor` factory, such as:
 
-    ```python
-    tf_plot = tfplot.wrap(plot_func, name="MyPlot", batch=True)
-    # x, y = get_batch_inputs(batch_size=4, ...)
+      >>> tf_plot = tfplot.wrap(plot_func, name="MyPlot", batch=True)
+      >>> # x, y = get_batch_inputs(batch_size=4, ...)
 
-    plot_x = tf_plot(x)   # Tensor("MyPlot:0", shape=(4, ?, ?, 3), dtype=uint8)
-    plot_y = tf_plot(y)   # Tensor("MyPlot_1:0", shape=(4, ?, ?, 3), dtype=uint8)
-    ```
+      >>> plot_x = tf_plot(x)
+      Tensor("MyPlot:0", shape=(4, ?, ?, 3), dtype=uint8)
+      >>> plot_y = tf_plot(y)
+      Tensor("MyPlot_1:0", shape=(4, ?, ?, 3), dtype=uint8)
 
     Args:
       plot_func: A python function or callable to wrap. See the documentation
-        of `tfplot.plot()` for details.
+        of ``tfplot.plot()`` for details.
       batch: If True, all the tensors passed as argument will be
         assumed to be batched. Default value is False.
       name: A default name for the operation (optional). If not given, the
-        name of `plot_func` will be used.
-      kwargs: An optional kwargs passed to `plot_func` by default.
+        name of ``plot_func`` will be used.
+      kwargs: An optional kwargs passed to ``plot_func`` by default.
 
     Returns:
       A python function that will create a TensorFlow plot operation,
@@ -189,45 +190,42 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
     python function that creates a TensorFlow plot operation applying the
     arguments as input.
 
-    An axesplot function `axesplot_func` can be either:
+    An axesplot function ``axesplot_func`` can be either:
 
-    - (i) an unbounded method of matplotlib Axes (or AxesSubplot) class,
-        such as `Axes.scatter()` or `Axes.text()`, etc, or
-    - (ii) a simple python function that takes the named argument `ax`,
-        of type Axes or AxesSubplot, on which the plot will be drawn.
-        Some good examples of this family include `seaborn.heatmap(ax=...`).
+    - an unbounded method of matplotlib `Axes` (or `AxesSubplot`) class,
+      such as ``Axes.scatter()`` and ``Axes.text()``, etc, or
+    - a simple python function that takes the named argument ``ax``,
+      of type `Axes` or `AxesSubplot`, on which the plot will be drawn.
+      Some good examples of this family includes ``seaborn.heatmap(ax=...)``.
 
     The resulting function can be used as a Tensor factory. When the created
     tensorflow plot op is being executed, a new matplotlib figure which
-    consists of a single AxesSubplot will be created, and the axes plot
-    will be used as an argument for `axesplot_func`. For example,
+    consists of a single `AxesSubplot` will be created, and the axes plot
+    will be used as an argument for ``axesplot_func``. For example,
 
-    ```python
-    import seaborn.apionly as sns
-    tf_heatmap = tfplot.wrap_axesplot(sns.heatmap, name="HeatmapPlot",
-                                      figsize=(4, 4), cmap='jet')
+      >>> import seaborn.apionly as sns
+      >>> tf_heatmap = tfplot.wrap_axesplot(sns.heatmap, name="HeatmapPlot", figsize=(4, 4), cmap='jet')
 
-    plot_op = tf_heatmap(attention_map, cmap)
-    # plot_op: Tensor(HeatmapPlot:0", shape=(?, ?, 3), dtype=uint8)
-    ```
+      >>> plot_op = tf_heatmap(attention_map, cmap)
+      Tensor(HeatmapPlot:0", shape=(?, ?, 3), dtype=uint8)
 
     Args:
-        axesplot_func: An unbounded method of matplotlib Axes or AxesSubplot,
+      axesplot_func: An unbounded method of matplotlib `Axes` or `AxesSubplot`,
           or a python function or callable which has the `ax` parameter for
           specifying the axis to draw on.
       batch: If True, all the tensors passed as argument will be
         assumed to be batched. Default value is False.
       name: A default name for the operation (optional). If not given, the
-        name of `axesplot_func` will be used.
+        name of ``axesplot_func`` will be used.
       figsize: The figure size for the figure to be created.
       tight_layout: If True, the resulting figure will have no margins for
-        axis. Equivalent to calling `fig.subplots_adjust(0, 0, 1, 1)`.
-      kwargs: An optional kwargs passed to `axesplot_func` by default.
+        axis. Equivalent to calling ``fig.subplots_adjust(0, 0, 1, 1)``.
+      kwargs: An optional kwargs passed to ``axesplot_func`` by default.
 
     Returns:
       A python function that will create a TensorFlow plot operation,
-      passing the provied arguments and a new instance of AxesSubplot into
-      `axesplot_func`.
+      passing the provied arguments and a new instance of `AxesSubplot` into
+      ``axesplot_func``.
     '''
 
     if not hasattr(axesplot_func, '__call__'):
