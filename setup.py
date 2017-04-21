@@ -19,6 +19,7 @@ setup(
         'tfplot',
     ],
     install_requires=[
+        'six',
         'numpy',
         'matplotlib',
     ],

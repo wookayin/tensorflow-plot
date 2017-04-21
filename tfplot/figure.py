@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
+from six.moves import cStringIO
+from tensorflow import Summary
+
 from . import mpl_figure
 
 
@@ -64,10 +67,8 @@ def to_array(fig):
       fig: A `matplotlib.figure.Figure` object.
     """
 
-    #assert fig.canvas is not None, \
-    #    'fig must have canvas -- has it been created by plt.figure() ?'
+    # attach a new canvas if not exists
     if fig.canvas is None:
-        # attach a new canvas
         FigureCanvasAgg(fig)
 
     fig.canvas.draw()
@@ -78,7 +79,35 @@ def to_array(fig):
     return img
 
 
+def to_summary(fig, tag):
+    """
+    Convert a matplotlib figure ``fig`` into a TensorFlow Summary object
+    that can be directly feed into ``Summary.FileWriter``.
+    """
+    if not isinstance(tag, types.StringTypes):
+        raise TypeError("tag must be a string type")
+
+    # attach a new canvas if not exists
+    if fig.canvas is None:
+        FigureCanvasAgg(fig)
+
+    fig.canvas.draw()
+    w, h = fig.canvas.get_width_height()
+
+    # get PNG data from the figure
+    png_buffer = cStringIO()
+    fig.canvas.print_png(png_buffer)
+    png_encoded = png_buffer.getvalue()
+    png_buffer.close()
+
+    summary_image = Summary.Image(height=h, width=w, colorspace=3,  # RGB
+                                  encoded_image_string=png_encoded)
+    summary = Summary(value=[Summary.Value(tag=tag, image=summary_image)])
+    return summary
+
+
 __all__ = (
     'subplots',
     'to_array',
+    'to_summary',
 )
