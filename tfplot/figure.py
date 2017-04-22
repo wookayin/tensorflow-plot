@@ -53,18 +53,21 @@ subplots.__doc__ += plt.subplots.__doc__[plt.subplots.__doc__.find('Parameters')
 
 def to_array(fig):
     """
-    Convert a matplotlib figure `fig` into a 3D numpy array.
+    Convert a matplotlib figure ``fig`` into a 3D numpy array.
 
-    A typical usage:
+    Example:
 
-      ```python
-      fig, ax = plt.subplots(figsize=(4, 4))
-      # draw whatever, e.g. ax.text(0.5, 0.5, "text")
-      im = to_array(fig)   # [288, 288, 3]
-      ```
+      >>> fig, ax = tfplot.subplots(figsize=(4, 4))
+      >>> # draw whatever, e.g. ax.text(0.5, 0.5, "text")
+
+      >>> im = to_array(fig)   # ndarray [288, 288, 3]
 
     Args:
-      fig: A `matplotlib.figure.Figure` object.
+      fig: A ``matplotlib.figure.Figure`` object.
+
+    Returns:
+      A numpy ``ndarray`` of shape ``(?, ?, 3)``, containing an RGB image of
+      the figure.
     """
 
     # attach a new canvas if not exists
@@ -82,7 +85,24 @@ def to_array(fig):
 def to_summary(fig, tag):
     """
     Convert a matplotlib figure ``fig`` into a TensorFlow Summary object
-    that can be directly feed into ``Summary.FileWriter``.
+    that can be directly fed into ``Summary.FileWriter``.
+
+    Example:
+
+      >>> fig, ax = ...    # (as above)
+      >>> summary = to_summary(fig, tag='MyFigure/image')
+
+      >>> type(summary)
+      tensorflow.core.framework.summary_pb2.Summary
+      >>> summary_writer.add_summary(summary, global_step=global_step)
+
+    Args:
+      fig: A ``matplotlib.figure.Figure`` object.
+      tag (string): The tag name of the created summary.
+
+    Returns:
+      A TensorFlow ``Summary`` protobuf object containing the plot image
+      as a image summary.
     """
     if not isinstance(tag, types.StringTypes):
         raise TypeError("tag must be a string type")
