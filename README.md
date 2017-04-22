@@ -1,6 +1,8 @@
 TensorFlow Plot
 ===============
 
+[![Documentation Status](https://readthedocs.org/projects/tensorflow-plot/badge/?version=latest)][documentation]
+
 A [TensorFlow][tensorflow] utility for providing matplotlib-based **plot** operations
 — [TensorBoard][tensorboard] ❤️ [Matplotlib][matplotlib].
 
@@ -57,6 +59,9 @@ Please take a look at the
 [the showcase][examples-showcase] or [examples directory][examples-dir]
 for more examples and use cases.
 
+[The full documentation][documentation] including API docs, can be found at [readthedocs][documentation].
+
+
 
 Installation
 ------------
@@ -107,6 +112,8 @@ to use inside plot functions.
 [pyplot]: http://matplotlib.org/api/pyplot_api.html
 [examples-dir]: https://github.com/wookayin/tensorflow-plot/blob/master/examples/
 [examples-showcase]: https://github.com/wookayin/tensorflow-plot/blob/master/examples/showcases.ipynb
+[documentation]: http://tensorflow-plot.readthedocs.io/en/latest/
+
 
 License
 -------
