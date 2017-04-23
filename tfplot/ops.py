@@ -151,16 +151,17 @@ def wrap(plot_func, _sentinel=None,
 
     Args:
       plot_func: A python function or callable to wrap. See the documentation
-        of ``tfplot.plot()`` for details.
+        of :func:`tfplot.plot()` for details.
       batch: If True, all the tensors passed as argument will be
         assumed to be batched. Default value is False.
       name: A default name for the operation (optional). If not given, the
         name of ``plot_func`` will be used.
-      kwargs: An optional kwargs passed to ``plot_func`` by default.
+      kwargs: An optional kwargs that will be passed by default to
+        ``plot_func``.
 
     Returns:
       A python function that will create a TensorFlow plot operation,
-      passing the provied arguments.
+      passing the provided arguments.
     '''
 
     if not hasattr(plot_func, '__call__'):
@@ -220,7 +221,8 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
       figsize: The figure size for the figure to be created.
       tight_layout: If True, the resulting figure will have no margins for
         axis. Equivalent to calling ``fig.subplots_adjust(0, 0, 1, 1)``.
-      kwargs: An optional kwargs passed to ``axesplot_func`` by default.
+      kwargs: An optional kwargs that will be passed by default to
+        ``axesplot_func``.
 
     Returns:
       A python function that will create a TensorFlow plot operation,

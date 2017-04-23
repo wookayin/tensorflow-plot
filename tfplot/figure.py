@@ -127,7 +127,7 @@ def to_summary(fig, tag):
 
 
 __all__ = (
-    'subplots',
     'to_array',
     'to_summary',
+    'subplots',
 )

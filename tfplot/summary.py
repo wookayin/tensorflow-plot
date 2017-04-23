@@ -78,3 +78,80 @@ def plot_many(name, plot_func, in_tensors,
                                    max_outputs=max_outputs,
                                    collections=collections)
     return summary
+
+
+def wrap(plot_func, _sentinel=None,
+         batch=False, name=None, **kwargs):
+    '''
+    Wrap a plot function as a TensorFlow summary builder. It will return a
+    python function that creates a TensorFlow op which evaluates to
+    ``Summary`` protocol buffer with image.
+
+    The resulting function (say ``summary_wrapped``) will have the following
+    signature:
+
+    .. code-block:: python
+
+       summary_wrapped(name, tensor, # [more input tensors ...],
+                       max_outputs=3, collections=None)
+
+    Examples:
+
+      Given a plot function which returns a matplotlib `Figure`,
+
+      >>> def figure_heatmap(data, cmap='jet'):
+      >>>     fig, ax = tfplot.subplots()
+      >>>     ax.imshow(data, cmap=cmap)
+      >>>     return fig
+
+      we can wrap it as a summary builder function:
+
+      >>> summary_heatmap = tfplot.summary.wrap(figure_heatmap, batch=True)
+
+      Now, when building your computation graph, call it to build summary ops
+      like ``tf.summary.image``:
+
+      >>> heatmap_tensor
+      <tf.Tensor 'heatmap_tensor:0' shape=(16, 128, 128) dtype=float32>
+      >>>
+      >>> summary_heatmap("heatmap/original", heatmap_tensor)
+      >>> summary_heatmap("heatmap/cmap_gray", heatmap_tensor, cmap=gray)
+      >>> summary_heatmap("heatmap/no_default_collections", heatmap_tensor, collections=[])
+
+
+    Args:
+      plot_func: A python function or callable to wrap. See the documentation
+        of :func:`tfplot.plot` for details.
+      batch: If True, all the tensors passed as argument will be
+        assumed to be batched. Default value is False.
+      name: A default name for the plot op (optional). If not given, the
+        name of ``plot_func`` will be used.
+      kwargs: Optional keyword arguments that will be passed by default to
+        :func:`~tfplot.plot`.
+
+    Returns:
+      A python function that will create a TensorFlow summary operation,
+      passing the provided arguments into plot op.
+    '''
+
+    if _sentinel is not None:
+        raise RuntimeError("Invalid call: it can have only one unnamed argument, " +
+                           "please pass named arguments for batch, name, etc.")
+
+    factory_fn = ops.wrap(plot_func, batch=batch, name=name, **kwargs)
+    def _summary_fn(summary_name, *args, **kwargs_call):
+        plot_op = factory_fn(*args, **kwargs_call)
+        return tf.summary.image(summary_name, plot_op,
+                                max_outputs=kwargs_call.pop('max_outputs', 3),
+                                collections=kwargs_call.pop('collections', None),
+                                )
+
+    _summary_fn.__name__ = 'summary_fn[%s]' % plot_func
+    return _summary_fn
+
+
+__all__ = (
+    'wrap',
+    'plot',
+    'plot_many',
+)
