@@ -7,6 +7,7 @@ matplotlib.use('Agg')
 
 from .ops import plot, plot_many, wrap, wrap_axesplot
 from .figure import subplots
+from . import summary
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
