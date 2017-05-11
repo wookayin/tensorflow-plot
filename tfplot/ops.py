@@ -76,6 +76,7 @@ def plot(plot_func, in_tensors, name='Plot',
 
 
 def plot_many(plot_func, in_tensors, name='PlotMany',
+              max_outputs=None,
               **kwargs):
     '''
     A batch version of ``plot``.  Create a TensorFlow op which draws
@@ -91,13 +92,14 @@ def plot_many(plot_func, in_tensors, name='PlotMany',
         be same.
       in_tensors: A list of `tf.Tensor` objects.
       name: A name for the operation (optional).
+      max_outputs: Max number of batch elements to generate plots for (optional).
       kwargs: Additional keyword arguments passed to `plot_func` (optional).
 
     Returns:
-      A single `uint8` `Tensor` of shape ``(batch_size, ?, ?, 3)``, containing
-      the `batch_size` plot images each of which is computed by ``plot_func``,
-      where `batch_size` is the number of batch elements in the each tensor
-      from ``in_tensors``.
+      A single `uint8` `Tensor` of shape ``(B, ?, ?, 3)``, containing the B
+      plot images, each of which is computed by ``plot_func``, where B equals
+      ``batch_size``, the number of batch elements in the each tensor from
+      ``in_tensors``, or ``max_outputs`` (whichever is smaller).
     '''
 
     # unstack all the tensors in in_tensors
@@ -119,6 +121,8 @@ def plot_many(plot_func, in_tensors, name='PlotMany',
         # generate plots for each batch element
         ims = []
         for k, arg in enumerate(zip(*args)):
+            if max_outputs is not None and k >= max_outputs:
+                break
             im = plot(plot_func, arg, name=('Plot_%d' % k), **kwargs)
             ims.append(im)
 

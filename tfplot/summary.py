@@ -73,7 +73,9 @@ def plot_many(name, plot_func, in_tensors,
     """
 
     with tf.name_scope(name=name) as scope:
-        im_batch = ops.plot_many(plot_func, in_tensors, name=scope, **kwargs)
+        im_batch = ops.plot_many(plot_func, in_tensors, name=scope,
+                                 max_outputs=max_outputs,
+                                 **kwargs)
         summary = tf.summary.image(name="ImageSummary", tensor=im_batch,
                                    max_outputs=max_outputs,
                                    collections=collections)
