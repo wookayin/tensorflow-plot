@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
+import six
 from six.moves import cStringIO
 from tensorflow import Summary
 
@@ -38,7 +39,10 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     # create subplots, e.g. fig.subplots() in matplotlib 2.1+
     if not hasattr(fig, 'subplots'):
-        fig.subplots = types.MethodType(mpl_figure.subplots, fig, FigureClass)
+        if six.PY2:
+            fig.subplots = types.MethodType(mpl_figure.subplots, fig, FigureClass)
+        else:
+            fig.subplots = types.MethodType(mpl_figure.subplots, fig)
 
     axs = fig.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey,
                        squeeze=squeeze, subplot_kw=subplot_kw,
