@@ -6,13 +6,14 @@ from __future__ import print_function
 
 import six
 import re
-import inspect
 import types
 
 import tensorflow as tf
 import numpy as np
 
 from . import figure
+from . import util
+
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
@@ -262,17 +263,16 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
         axesplot_func(*args, ax=ax, **_merge_kwargs(kwargs, kwargs_call))
         return fig
 
-    if isinstance(axesplot_func, types.MethodType) and \
-            issubclass(axesplot_func.im_class, Axes):
+    if util.get_class_defining_method(axesplot_func) is Axes:
         # (1) Axes.xyz()
-        if axesplot_func.im_self is not None:
+        if hasattr(axesplot_func, '__self__'):
             raise ValueError("axesplot_func should be a unbounded method of " +
-                             "Axes or AxesSubplot, but given a bounded method " +
+                             "Axes or AxesSubplot, but given a bound method " +
                              str(axesplot_func))
         fig_axesplot_func = _fig_axesplot_method
     else:
         # (2) xyz(ax=...)
-        if 'ax' not in inspect.getargspec(axesplot_func).args:
+        if 'ax' not in util.getargspec(axesplot_func).args:
             raise TypeError("axesplot_func must take 'ax' parameter to specify Axes")
         fig_axesplot_func = _fig_axesplot_fn
 
