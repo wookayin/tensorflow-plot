@@ -2,6 +2,7 @@ TensorFlow Plot
 ===============
 
 [![Documentation Status](https://readthedocs.org/projects/tensorflow-plot/badge/?version=latest)][documentation]
+[![Build Status](https://travis-ci.org/wookayin/tensorflow-plot.svg?branch=master)](https://travis-ci.org/wookayin/tensorflow-plot)
 
 A [TensorFlow][tensorflow] utility for providing matplotlib-based **plot** operations
 — [TensorBoard][tensorboard] ❤️ [Matplotlib][matplotlib].

@@ -1,4 +1,4 @@
-__version__ = '0.1.0.dev0'
+__version__ = '0.2.0.dev0'
 
 import codecs
 from setuptools import setup
@@ -21,7 +21,13 @@ setup(
     install_requires=[
         'six',
         'numpy',
-        'matplotlib',
+        'matplotlib>=2.0.0',
+    ],
+    setup_requires=[
+        'pytest-runner',
+    ],
+    tests_require=[
+        'pytest',
     ],
     classifiers=[
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers
