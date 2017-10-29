@@ -263,10 +263,11 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
         axesplot_func(*args, ax=ax, **_merge_kwargs(kwargs, kwargs_call))
         return fig
 
-    if util.get_class_defining_method(axesplot_func) is Axes:
+    method_class = util.get_class_defining_method(axesplot_func)
+    if method_class is not None and issubclass(method_class, Axes):
         # (1) Axes.xyz()
-        if hasattr(axesplot_func, '__self__'):
-            raise ValueError("axesplot_func should be a unbounded method of " +
+        if hasattr(axesplot_func, '__self__') and axesplot_func.__self__:
+            raise ValueError("axesplot_func should be a unbound method of " +
                              "Axes or AxesSubplot, but given a bound method " +
                              str(axesplot_func))
         fig_axesplot_func = _fig_axesplot_method

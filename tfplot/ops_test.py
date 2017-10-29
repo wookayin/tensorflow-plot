@@ -79,6 +79,13 @@ class TestWrap(unittest.TestCase):
         self._check_plot_op_shape(plot_op)
         self.assertEqual(plot_op.name, 'fn_to_wrap:0')
 
+    def test_wrap_axesplot_invalid(self):
+        '''Invalid usage of tfplot.wrap_axesplot().'''
+        fig, ax = tfplot.figure.subplots()
+
+        with self.assertRaises(ValueError):
+            # it should raise a ValueError about bound method
+            tf_plot = tfplot.wrap_axesplot(ax.scatter)
 
 
 if __name__ == '__main__':

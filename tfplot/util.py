@@ -16,15 +16,22 @@ def get_class_defining_method(m):
     Code originated from https://stackoverflow.com/questions/3589311/
     '''
     if inspect.ismethod(m):
+        if hasattr(m, 'im_class'):
+            return m.im_class
         for cls in inspect.getmro(m.__self__.__class__):
             if cls.__dict__.get(m.__name__) is m:
                 return cls
         m = m.__func__
+
     if inspect.isfunction(m):
-        cls = getattr(inspect.getmodule(m),
-                      m.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0])
-        if isinstance(cls, type):
-            return cls
+        try:
+            cls = getattr(inspect.getmodule(m),
+                          m.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0])
+            if isinstance(cls, type):
+                return cls
+        except AttributeError:
+            return None
+
     return None
 
 
