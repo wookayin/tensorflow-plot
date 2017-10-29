@@ -12,7 +12,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 import six
-from six.moves import cStringIO
+from io import BytesIO
 from tensorflow import Summary
 
 from . import mpl_figure
@@ -108,7 +108,7 @@ def to_summary(fig, tag):
       A TensorFlow ``Summary`` protobuf object containing the plot image
       as a image summary.
     """
-    if not isinstance(tag, types.StringTypes):
+    if not isinstance(tag, six.string_types):
         raise TypeError("tag must be a string type")
 
     # attach a new canvas if not exists
@@ -119,7 +119,7 @@ def to_summary(fig, tag):
     w, h = fig.canvas.get_width_height()
 
     # get PNG data from the figure
-    png_buffer = cStringIO()
+    png_buffer = BytesIO()
     fig.canvas.print_png(png_buffer)
     png_encoded = png_buffer.getvalue()
     png_buffer.close()
