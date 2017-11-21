@@ -27,7 +27,7 @@ def plot(plot_func, in_tensors, name='Plot',
     Given a python function ``plot_func``, which takes numpy arrays as its
     inputs (the evaluations of ``in_tensors``) and returns a matplotlib
     `Figure` object as its outputs, wrap this function as a TensorFlow op.
-    The returning figure will be rendered as a RGB image upon execution.
+    The returning figure will be rendered as a RGB-A image upon execution.
 
     Args:
       plot_func: a python function or callable
@@ -40,7 +40,7 @@ def plot(plot_func, in_tensors, name='Plot',
       kwargs: Additional keyword arguments passed to ``plot_func`` (optional).
 
     Returns:
-      A single `uint8` `Tensor` of shape ``(?, ?, 3)``, containing the plot
+      A single `uint8` `Tensor` of shape ``(?, ?, 4)``, containing the plot
       image that ``plot_func`` computes.
     '''
 
@@ -72,7 +72,7 @@ def plot(plot_func, in_tensors, name='Plot',
 
     im = tf.py_func(_render_image, in_tensors, Tout=tf.uint8,
                     name=name)
-    im.set_shape([None, None, 3])
+    im.set_shape([None, None, 4])
     return im
 
 
@@ -82,7 +82,7 @@ def plot_many(plot_func, in_tensors, name='PlotMany',
     '''
     A batch version of ``plot``.  Create a TensorFlow op which draws
     a plot for each image. The resulting images are given in a 4-D `uint8`
-    Tensor of shape ``[batch_size, height, width, 3]``.
+    Tensor of shape ``[batch_size, height, width, 4]``.
 
     Args:
       plot_func: A python function or callable, which accepts numpy
@@ -97,7 +97,7 @@ def plot_many(plot_func, in_tensors, name='PlotMany',
       kwargs: Additional keyword arguments passed to `plot_func` (optional).
 
     Returns:
-      A single `uint8` `Tensor` of shape ``(B, ?, ?, 3)``, containing the B
+      A single `uint8` `Tensor` of shape ``(B, ?, ?, 4)``, containing the B
       plot images, each of which is computed by ``plot_func``, where B equals
       ``batch_size``, the number of batch elements in the each tensor from
       ``in_tensors``, or ``max_outputs`` (whichever is smaller).
@@ -150,9 +150,9 @@ def wrap(plot_func, _sentinel=None,
       >>> # x, y = get_batch_inputs(batch_size=4, ...)
 
       >>> plot_x = tf_plot(x)
-      Tensor("MyPlot:0", shape=(4, ?, ?, 3), dtype=uint8)
+      Tensor("MyPlot:0", shape=(4, ?, ?, 4), dtype=uint8)
       >>> plot_y = tf_plot(y)
-      Tensor("MyPlot_1:0", shape=(4, ?, ?, 3), dtype=uint8)
+      Tensor("MyPlot_1:0", shape=(4, ?, ?, 4), dtype=uint8)
 
     Args:
       plot_func: A python function or callable to wrap. See the documentation
@@ -213,7 +213,7 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
       >>> tf_heatmap = tfplot.wrap_axesplot(sns.heatmap, name="HeatmapPlot", figsize=(4, 4), cmap='jet')
 
       >>> plot_op = tf_heatmap(attention_map, cmap)
-      Tensor(HeatmapPlot:0", shape=(?, ?, 3), dtype=uint8)
+      Tensor(HeatmapPlot:0", shape=(?, ?, 4), dtype=uint8)
 
     Args:
       axesplot_func: An unbounded method of matplotlib `Axes` or `AxesSubplot`,

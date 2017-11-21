@@ -18,11 +18,11 @@ class TestWrap(unittest.TestCase):
     Tests tfplot.wrap() and wrap_axesplot()
     '''
     def _check_plot_op_shape(self, op):
-        '''Check if op is a uint8 Tensor of shape [?, ?, 3]'''
+        '''Check if op is a uint8 Tensor of shape [?, ?, 4]'''
         self.assertIsInstance(op, tf.Tensor)
 
         self.assertEqual(len(op.get_shape()), 3)
-        self.assertTrue(op.get_shape().is_compatible_with([None, None, 3]))
+        self.assertTrue(op.get_shape().is_compatible_with([None, None, 4]))   # RGB-A
         self.assertEqual(op.dtype, tf.uint8)
 
 

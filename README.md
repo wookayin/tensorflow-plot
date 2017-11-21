@@ -39,7 +39,7 @@ Alternatively, if you need more flexibility on plots,
 just define a python function that takes `numpy.ndarray` values as input,
 draw a plot, and return it as a `matplotlib.figure.Figure` object.
 Then, `tfplot.plot()` will wrap this function as a TensorFlow operation,
-which will produce a RGB image tensor `[height, width, 3]` containing the resulting plot.
+which will produce a RGB-A image tensor `[height, width, 4]` containing the resulting plot.
 
 ```python
 def figure_heatmap(heatmap, cmap='jet'):

@@ -64,13 +64,13 @@ def to_array(fig):
       >>> fig, ax = tfplot.subplots(figsize=(4, 4))
       >>> # draw whatever, e.g. ax.text(0.5, 0.5, "text")
 
-      >>> im = to_array(fig)   # ndarray [288, 288, 3]
+      >>> im = to_array(fig)   # ndarray [288, 288, 4]
 
     Args:
       fig: A ``matplotlib.figure.Figure`` object.
 
     Returns:
-      A numpy ``ndarray`` of shape ``(?, ?, 3)``, containing an RGB image of
+      A numpy ``ndarray`` of shape ``(?, ?, 4)``, containing an RGB-A image of
       the figure.
     """
 
@@ -81,8 +81,9 @@ def to_array(fig):
     fig.canvas.draw()
     w, h = fig.canvas.get_width_height()
 
-    img = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-    img = img.reshape((h, w, 3))
+    img = np.fromstring(fig.canvas.tostring_argb(), dtype=np.uint8, sep='')
+    img = img.reshape((h, w, 4))
+    img = img[:, :, (1, 2, 3, 0)]   # argb -> rgba
     return img
 
 
@@ -124,7 +125,7 @@ def to_summary(fig, tag):
     png_encoded = png_buffer.getvalue()
     png_buffer.close()
 
-    summary_image = Summary.Image(height=h, width=w, colorspace=3,  # RGB
+    summary_image = Summary.Image(height=h, width=w, colorspace=4,  # RGB-A
                                   encoded_image_string=png_encoded)
     summary = Summary(value=[Summary.Value(tag=tag, image=summary_image)])
     return summary
