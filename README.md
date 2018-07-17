@@ -76,6 +76,16 @@ pip install git+https://github.com/wookayin/tensorflow-plot.git@master
 Note
 ----
 
+### Some comments
+
+Matplotlib operations can be *very* slow as Matplotlib runs in python, so please be aware of runtime performance.
+There is still a room for improvement, which will be added sometimes later.
+
+Moreover, it might be also a good idea to draw plots from the main code (rather than having a TF op) and add them as image summaries.
+Please use this library with your best discernment.
+
+### Thread-safety issue
+
 Please use **object-oriented** matplotlib APIs (e.g. `Figure`, `AxesSubplot`)
 instead of [pyplot] APIs (i.e. `matplotlib.pyplot` or `plt.XXX()`)
 when creating and drawing plots.
