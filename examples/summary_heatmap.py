@@ -42,7 +42,7 @@ def heatmap_overlay(data, overlay_image=None, cmap='jet',
     sns.heatmap(data, ax=ax, alpha=alpha, cmap=cmap, cbar=cbar, **kwargs)
 
     if overlay_image is not None:
-        h, w = data.shape[0]
+        h, w = data.shape
         ax.imshow(overlay_image, extent=[0, h, 0, w])
 
     if show_axis:
