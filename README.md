@@ -1,7 +1,7 @@
 TensorFlow Plot
 ===============
 
-[![pypi](https://img.shields.io/pypi/v/tfplot.svg?maxAge=86400)][pypi_tfplot]
+[![pypi](https://img.shields.io/pypi/v/tensorflow-plot.svg?maxAge=86400)][pypi_tfplot]
 [![Documentation Status](https://readthedocs.org/projects/tensorflow-plot/badge/?version=latest)][documentation]
 [![Build Status](https://travis-ci.org/wookayin/tensorflow-plot.svg?branch=master)](https://travis-ci.org/wookayin/tensorflow-plot)
 
