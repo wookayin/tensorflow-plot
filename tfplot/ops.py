@@ -13,6 +13,7 @@ import numpy as np
 
 from . import figure
 from . import util
+from .util import merge_kwargs
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
@@ -182,7 +183,7 @@ def wrap(plot_func, _sentinel=None,
         _plot = plot_many if batch else plot
         _name = kwargs_call.pop('name', name)
         return _plot(plot_func, list(args), name=_name,
-                     **_merge_kwargs(kwargs, kwargs_call))
+                     **merge_kwargs(kwargs, kwargs_call))
 
     _wrapped_fn.__name__ = 'wrapped_fn[%s]' % plot_func
     return _wrapped_fn
@@ -254,13 +255,13 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
     # (1) instance method of Axes -- ax.xyz()
     def _fig_axesplot_method(*args, **kwargs_call):
         fig, ax = _create_subplots()
-        axesplot_func.__get__(ax)(*args, **_merge_kwargs(kwargs, kwargs_call))
+        axesplot_func.__get__(ax)(*args, **merge_kwargs(kwargs, kwargs_call))
         return fig
 
     # (2) xyz(ax=...) style
     def _fig_axesplot_fn(*args, **kwargs_call):
         fig, ax = _create_subplots()
-        axesplot_func(*args, ax=ax, **_merge_kwargs(kwargs, kwargs_call))
+        axesplot_func(*args, ax=ax, **merge_kwargs(kwargs, kwargs_call))
         return fig
 
     method_class = util.get_class_defining_method(axesplot_func)
@@ -297,10 +298,6 @@ def _clean_name(s):
     return re.sub('[^0-9a-zA-Z_]', '', s)
 
 
-def _merge_kwargs(kwargs, kwargs_new):
-    kwargs = kwargs.copy()
-    kwargs.update(kwargs_new)
-    return kwargs
 
 
 

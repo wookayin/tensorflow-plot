@@ -42,7 +42,23 @@ else:
     getargspec = inspect.getfullargspec
 
 
+
+def merge_kwargs(kwargs, kwargs_new):
+    '''
+    Merge two kwargs.
+
+    One could simply use {**kwargs, **kwargs_new} to merge two kwargs dict,
+    but we should support old python versions too.
+
+    Moreover, values for duplicated key will be overwritten (in favor of kwargs_new).
+    '''
+    kwargs = kwargs.copy()
+    kwargs.update(kwargs_new)
+    return kwargs
+
+
 __all__ = (
     'get_class_defining_method',
     'getargspec',
+    'merge_kwargs',
 )
