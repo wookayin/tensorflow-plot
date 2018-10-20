@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import functools
 import re
 
 from . import figure
@@ -169,6 +170,84 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
 
     _wrapped_factory_fn.__name__ = 'wrapped_axesplot_fn[%s]' % axesplot_func
     return _wrapped_factory_fn
+
+
+
+def as_op(_sentinel=None, name=None,
+          figsize=None, tight_layout=False):
+    """
+    This decorator wraps a python function into a TensorFlow operation.
+
+    It has a similar usage as :func:`tfplot.wrap()`, but provides additional
+    features by convention:
+
+      - (``fig``, ``ax``) matplotlib objects are automatically created and
+        injected, so that we do not need to call :func:`tfplot.subplots()`
+        manually. If a manual creation of ``fig, ax``
+
+        - It will automatially handle batch.
+
+    Args:
+      plot_func: A python function or callable to wrap. See the documentation
+        of :func:`tfplot.plot()` for details. Additionally, if this function
+        has a parameter named ``fig`` or ``ax``
+
+      name: A default name for the operation (optional). If not given, the
+        name of ``plot_func`` will be used.
+
+      figsize: The figure size for the figure to be created.
+      tight_layout: If True, the resulting figure will have no margins for
+        axis. Equivalent to calling ``fig.subplots_adjust(0, 0, 1, 1)``.
+
+    """
+
+    def _create_subplots():
+        fig, ax = figure.subplots(figsize=figsize)
+        if tight_layout:
+            fig.subplots_adjust(0, 0, 1, 1)
+        return fig, ax
+
+    def _decorator(func):
+        # check if func has `fig` or `ax` parameter
+        func_argspec = util.getargspec(func)
+        fig_ax_mode = tuple(
+            arg_name for arg_name in ('ax', 'fig') \
+            if arg_name in (func_argspec.args + func_argspec.kwonlyargs)
+        )
+
+        # the main body that will be executed inside TF graph.
+        @functools.wraps(func)
+        def _plot_fn(*args, **kwargs):
+            if fig_ax_mode:
+                # auto-create rather than manually
+                fig, ax = _create_subplots()
+            fig_ax_kwargs = dict(
+                ([('fig', fig)] if 'fig' in fig_ax_mode else []) +
+                ([('ax', ax)] if 'ax' in fig_ax_mode else [])
+            )
+
+            ret = func(*args, **merge_kwargs(kwargs, fig_ax_kwargs))
+            if ret is None and fig_ax_mode:
+                # even if the function doesn't return anything,
+                # we know that `fig` is what we just need to draw.
+                ret = fig
+
+            return ret
+
+        _plot_fn.__name__ = 'wrapped_fn[%s]' % func
+        return wrap(_plot_fn, name=name)
+
+    if _sentinel is not None:
+        # using as @tfplot.wrap without arguments
+        if hasattr(_sentinel, '__call__'):
+            return _decorator(_sentinel)
+
+        raise RuntimeError("Invalid usage: it cannot have any positional arguments, "
+                           "please pass named arguments for batch, name, etc.")
+
+    return _decorator
+
+
 
 
 def _clean_name(s):
