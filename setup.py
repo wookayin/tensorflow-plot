@@ -71,7 +71,7 @@ class DeployCommand(Command):
 
 
 setup(
-    name='tfplot',
+    name='tensorflow-plot',
     version=__version__,
     description='TensorFlow Plot',
     long_description=readme,

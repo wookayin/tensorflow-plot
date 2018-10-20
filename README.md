@@ -1,6 +1,7 @@
 TensorFlow Plot
 ===============
 
+[![pypi](https://img.shields.io/pypi/v/tfplot.svg?maxAge=86400)][pypi_tfplot]
 [![Documentation Status](https://readthedocs.org/projects/tensorflow-plot/badge/?version=latest)][documentation]
 [![Build Status](https://travis-ci.org/wookayin/tensorflow-plot.svg?branch=master)](https://travis-ci.org/wookayin/tensorflow-plot)
 
@@ -67,7 +68,11 @@ for more examples and use cases.
 Installation
 ------------
 
-I will upload the package to PyPI once the API and documentation are stablized. Until then, we can try:
+```
+pip install tensorflow-plot
+```
+
+To grab the latest development version:
 
 ```
 pip install git+https://github.com/wookayin/tensorflow-plot.git@master
@@ -117,6 +122,7 @@ For example, `tfplot.subplots()` is a good replacement for `plt.subplots()`
 to use inside plot functions.
 
 
+[pypi_tfplot]: https://pypi.python.org/pypi/tfplot
 [matplotlib]: http://matplotlib.org/
 [tensorflow]: https://www.tensorflow.org/
 [tensorboard]: https://www.tensorflow.org/get_started/summaries_and_tensorboard
