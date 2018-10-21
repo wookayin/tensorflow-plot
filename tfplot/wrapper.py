@@ -29,15 +29,25 @@ def wrap(plot_func=REQUIRED, _sentinel=None,
     '''
     Wrap a plot function as a TensorFlow operation. It will return a python
     function that creates a TensorFlow plot operation applying the arguments
-    as input.
+    as input. It can be also used as a decorator.
 
-    For example, if ``plot_func`` is a python function that takes two
-    arrays as input, and draw a plot by returning a matplotlib Figure,
+    For example:
+
+      >>> @tfplot.wrap
+      >>> def plot_imshow(img):
+      >>>    fig, ax = tfplot.subplots()
+      >>>    ax.imshow(img)
+      >>>    return fig
+      >>>
+      >>> plot_imshow(an_image_tensor)
+      Tensor("plot_imshow:0", shape=(?, ?, 4), dtype=uint8)
+
+    Or, if ``plot_func`` is a python function that takes  numpy arrays as input
+    and draw a plot by returning a matplotlib Figure,
     we can wrap this function as a `Tensor` factory, such as:
 
       >>> tf_plot = tfplot.wrap(plot_func, name="MyPlot", batch=True)
       >>> # x, y = get_batch_inputs(batch_size=4, ...)
-
       >>> plot_x = tf_plot(x)
       Tensor("MyPlot:0", shape=(4, ?, ?, 4), dtype=uint8)
       >>> plot_y = tf_plot(y)
@@ -182,26 +192,40 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
     return _wrapped_factory_fn
 
 
-
 @biwrap
 def autowrap(plot_func=REQUIRED, _sentinel=None,
              name=None, figsize=None, tight_layout=False):
     """
-    This decorator wraps a python function into a TensorFlow operation.
-
-    It has a similar usage as :func:`tfplot.wrap()`, but provides additional
-    features by convention:
+    Wrap a function as a TensorFlow operation similar to :func:`tfplot.wrap()`
+    (as a decorator or with normal function call), but provides with additional
+    features such as auto-creating matplotlib figures.
 
       - (``fig``, ``ax``) matplotlib objects are automatically created and
-        injected, so that we do not need to call :func:`tfplot.subplots()`
-        manually. If a manual creation of ``fig, ax``
+        injected given that `plot_func` has a keyword argument named ``fig``
+        and/or ```ax``. In such cases, we do not need to manually call
+        :func:`tfplot.subplots()` to create matplotlib figure/axes objects.
+        If a manual creation of ``fig, ax`` is forced, please consider
+        using :func:`tfplot.wrap()` instead.
 
-        - It will automatially handle batch.
+      - It can automatically handle return values of the provided `plot_func`
+        function. If it returns nothing (None) but ``fig`` was automatically
+        injected then the resulting figure will be drawn, or returns ``Axes``
+        then the associated ``Figure`` will be used.
+
+    Example:
+
+      >>> @tfplot.autowrap(figsize=(3, 3))
+      >>> def plot_imshow(img, *, fig, ax):
+      >>>    ax.imshow(img)
+      >>>
+      >>> plot_imshow(an_image_tensor)
+      Tensor("plot_imshow:0", shape=(?, ?, 4), dtype=uint8)
 
     Args:
       plot_func: A python function or callable to wrap. See the documentation
         of :func:`tfplot.plot()` for details. Additionally, if this function
-        has a parameter named ``fig`` or ``ax``
+        has a parameter named ``fig`` and/or ``ax``, new instances of
+        ``Figure`` and/or ``AxesSubplot`` will be created and passed.
 
       name: A default name for the operation (optional). If not given, the
         name of ``plot_func`` will be used.
@@ -235,7 +259,7 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
             # auto-create rather than manually
             fig, ax = _create_subplots()
         fig_ax_kwargs = dict(
-            ([('fig', fig)] if 'fig' in fig_ax_mode else []) +
+            ([('fig', fig)] if 'fig' in fig_ax_mode else []) + \
             ([('ax', ax)] if 'ax' in fig_ax_mode else [])
         )
 
@@ -258,7 +282,6 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
         return ret
 
     return wrap(_wrapped_plot_fn, name=name)  # TODO kwargs
-
 
 
 def _clean_name(s):
