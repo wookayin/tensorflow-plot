@@ -12,11 +12,18 @@ from . import util
 from .ops import plot, plot_many
 from .util import merge_kwargs
 
+from biwrap import biwrap
+
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
 
-def wrap(plot_func, _sentinel=None,
+# a dummy marker object to avoid pylint issues on decorators.
+REQUIRED = object()
+
+
+@biwrap
+def wrap(plot_func=REQUIRED, _sentinel=None,
          batch=False, name=None,
          **kwargs):
     '''
@@ -51,15 +58,18 @@ def wrap(plot_func, _sentinel=None,
       passing the provided arguments.
     '''
 
+    if plot_func == REQUIRED:
+        raise TypeError("Required argument 'plot_func' (pos 1) not found")
     if not hasattr(plot_func, '__call__'):
         raise TypeError("plot_func should be callable")
     if _sentinel is not None:
-        raise RuntimeError("Invalid call: it can have only one unnamed argument, " +
+        raise RuntimeError("Invalid call: it can have only one positional argument, " +
                            "please pass named arguments for batch, name, etc.")
 
     if name is None:
         name = _clean_name(plot_func.__name__)
 
+    @functools.wraps(plot_func)
     def _wrapped_fn(*args, **kwargs_call):
         _plot = plot_many if batch else plot
         _name = kwargs_call.pop('name', name)
@@ -173,8 +183,9 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
 
 
 
-def as_op(_sentinel=None, name=None,
-          figsize=None, tight_layout=False):
+@biwrap
+def autowrap(plot_func=REQUIRED, _sentinel=None,
+             name=None, figsize=None, tight_layout=False):
     """
     This decorator wraps a python function into a TensorFlow operation.
 
@@ -201,52 +212,52 @@ def as_op(_sentinel=None, name=None,
 
     """
 
+    if plot_func == REQUIRED:
+        raise TypeError("Required argument 'plot_func' (pos 1) not found")
+
     def _create_subplots():
         fig, ax = figure.subplots(figsize=figsize)
-        if tight_layout:
-            fig.subplots_adjust(0, 0, 1, 1)
         return fig, ax
 
-    def _decorator(func):
-        # check if func has `fig` or `ax` parameter
-        func_argspec = util.getargspec(func)
-        fig_ax_mode = tuple(
-            arg_name for arg_name in ('ax', 'fig') \
-            if arg_name in (func_argspec.args + func_argspec.kwonlyargs)
+    # check if func has `fig` or `ax` parameter
+    func_argspec = util.getargspec(plot_func)
+    fig_ax_mode = tuple(
+        arg_name for arg_name in ('ax', 'fig') \
+        if arg_name in (func_argspec.args + func_argspec.kwonlyargs)
+    )
+
+    # Decorates `plot_func` with additional aspects
+    # (e.g. auto-injection, return value handling)
+    @functools.wraps(plot_func)
+    def _wrapped_plot_fn(*args, **kwargs_call):
+        # (1) auto-inject fig, ax
+        if fig_ax_mode:
+            # auto-create rather than manually
+            fig, ax = _create_subplots()
+        fig_ax_kwargs = dict(
+            ([('fig', fig)] if 'fig' in fig_ax_mode else []) +
+            ([('ax', ax)] if 'ax' in fig_ax_mode else [])
         )
 
-        # the main body that will be executed inside TF graph.
-        @functools.wraps(func)
-        def _plot_fn(*args, **kwargs):
-            if fig_ax_mode:
-                # auto-create rather than manually
-                fig, ax = _create_subplots()
-            fig_ax_kwargs = dict(
-                ([('fig', fig)] if 'fig' in fig_ax_mode else []) +
-                ([('ax', ax)] if 'ax' in fig_ax_mode else [])
-            )
+        # (2) body
+        ret = plot_func(*args, **merge_kwargs(kwargs_call, fig_ax_kwargs))  # TODO conflict??
 
-            ret = func(*args, **merge_kwargs(kwargs, fig_ax_kwargs))
-            if ret is None and fig_ax_mode:
-                # even if the function doesn't return anything,
-                # we know that `fig` is what we just need to draw.
-                ret = fig
+        # (3) return value handling
+        if ret is None and fig_ax_mode:
+            # even if the function doesn't return anything,
+            # but we know that `fig` is what we just need to draw.
+            ret = fig
+        elif isinstance(ret, Axes):
+            ret = fig = ret.figure
+        elif isinstance(ret, Figure):
+            fig = ret
 
-            return ret
+        if tight_layout:
+            fig.subplots_adjust(0, 0, 1, 1)
 
-        _plot_fn.__name__ = 'wrapped_fn[%s]' % func
-        return wrap(_plot_fn, name=name)
+        return ret
 
-    if _sentinel is not None:
-        # using as @tfplot.wrap without arguments
-        if hasattr(_sentinel, '__call__'):
-            return _decorator(_sentinel)
-
-        raise RuntimeError("Invalid usage: it cannot have any positional arguments, "
-                           "please pass named arguments for batch, name, etc.")
-
-    return _decorator
-
+    return wrap(_wrapped_plot_fn, name=name)  # TODO kwargs
 
 
 

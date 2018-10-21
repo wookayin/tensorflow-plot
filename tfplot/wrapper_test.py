@@ -103,6 +103,7 @@ class TestDecorator(tf.test.TestCase):
         '''Execute the op, and get the result (e.g. ndarray) under a test session'''
         with self.test_session():
             cprint("\n >>> " + str(op), color='cyan')
+            self.assertIsInstance(op, tf.Tensor)
             ret = op.eval()
             if print_image and sys.platform == 'darwin':
                 print(' ', end='')
@@ -112,7 +113,7 @@ class TestDecorator(tf.test.TestCase):
 
     def test_wrap_simple(self):
         '''Use as decorator'''
-        @tfplot.wrapper.as_op
+        @tfplot.wrap
         def foo():
             fig, ax = tfplot.subplots()
             ax.plot([1, 2, 3])
@@ -123,7 +124,7 @@ class TestDecorator(tf.test.TestCase):
 
     def test_wrap_withcall(self):
         '''Use as decorator, but with function call'''
-        @tfplot.wrapper.as_op()
+        @tfplot.wrap()
         def foo():
             fig, ax = tfplot.subplots()
             ax.plot([1, 2, 3])
@@ -131,6 +132,75 @@ class TestDecorator(tf.test.TestCase):
             return fig
 
         self._execute_plot_op(op=foo())
+
+    def test_wrap_withcall_argument(self):
+        '''Use as decorator, but with function call with arguments'''
+        @tfplot.wrap()
+        def foo(values):
+            fig, ax = tfplot.subplots()
+            ax.plot(values)
+            fig.tight_layout()
+            return fig
+
+        op = foo(tf.convert_to_tensor([2, 2, 3, 3]))
+        self._execute_plot_op(op)
+
+    def test_wrap_autoinject_figax(self):
+        """Tests whether @tfplot.autowrap work in many use cases"""
+        @tfplot.autowrap
+        def foo_autoinject_return_fig(fig=None, ax=None):
+            # fig, ax should have been autoinjected
+            assert fig and isinstance(fig, matplotlib.figure.Figure)
+            assert ax and isinstance(ax, matplotlib.axes.Axes)
+
+            ax.text(0.5, 0.5, "autoinject", ha='center')
+            return fig
+        self._execute_plot_op(foo_autoinject_return_fig())
+
+        @tfplot.autowrap
+        def foo_autoinject_return_ax(ax=None):
+            ax.text(0.5, 0.5, "autoinject", ha='center')
+            return ax
+        self._execute_plot_op(foo_autoinject_return_ax())
+
+        @tfplot.autowrap
+        def foo_autoinject_return_nothing(fig=None, ax=None):
+            ax.text(0.5, 0.5, "autoinject", ha='center')
+        self._execute_plot_op(foo_autoinject_return_nothing())
+
+        @tfplot.wrap
+        def foo_autoinject_shouldntwork(fig=None, ax=None):
+            ax.text(0.5, 0.5, "autoinject", ha='center')
+        with self.assertRaises(Exception):
+            self._execute_plot_op(foo_autoinject_shouldntwork())
+
+    @unittest.skipIf(sys.version_info[0] < 3, "Python 3+")
+    def test_wrap_autoinject_kwonly(self):
+        """Tests whether @tfplot.autowrap on functions with keyword-only argument"""
+
+        @tfplot.autowrap
+        def foo_autoinject_kwonly(*, fig, ax):
+            ax.text(0.5, 0.5, "autoinject-kwonly", ha='center')
+            return fig
+
+        self._execute_plot_op(foo_autoinject_kwonly())  # pylint: disable=missing-kwoa
+
+
+    def test_wrap_autowrap_arguments(self):
+        """Tests optional arguments (gigsize, tight_layouts) of @tfplot.autowrap"""
+
+        @tfplot.autowrap(figsize=(4, 1))
+        def wrappee_figsize(fig=None):
+            return fig
+
+        im = self._execute_plot_op(wrappee_figsize())
+        assert im.shape[0] * 4 == im.shape[1], str(im.shape)     # e.g. 100x400
+
+        @tfplot.autowrap(tight_layout=True)
+        def wrappee_tight(fig=None):
+            return fig
+
+        im = self._execute_plot_op(wrappee_tight())
 
 
 if __name__ == '__main__':

@@ -100,6 +100,7 @@ setup(
     ],
     tests_require=[
         'pytest',
+        'pytest-pudb',
         'imgcat',
         'termcolor',
     ],
