@@ -100,6 +100,8 @@ setup(
     ],
     tests_require=[
         'pytest',
+        'imgcat',
+        'termcolor',
     ],
     cmdclass={
         'deploy': DeployCommand,

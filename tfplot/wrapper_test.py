@@ -5,10 +5,19 @@ from __future__ import division
 from __future__ import print_function
 
 import unittest
-
 import types
+import sys
+import os
 
 import tensorflow as tf
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # filter out INFO and WARN logs
+tf.logging.set_verbosity(tf.logging.ERROR)
+
+import matplotlib
+matplotlib.rcParams['figure.figsize'] = (2.5, 2.5)
+
+from imgcat import imgcat
+from termcolor import cprint
 
 import tfplot.figure
 
@@ -17,8 +26,10 @@ class TestWrap(unittest.TestCase):
     '''
     Tests tfplot.wrap() and wrap_axesplot()
     '''
+
     def _check_plot_op_shape(self, op):
         '''Check if op is a uint8 Tensor of shape [?, ?, 4]'''
+        cprint(" op: %s" % op, color='cyan')
         self.assertIsInstance(op, tf.Tensor)
 
         self.assertEqual(len(op.get_shape()), 3)
@@ -36,12 +47,11 @@ class TestWrap(unittest.TestCase):
 
         # the function to create TensorFlow ops
         tf_plot = tfplot.wrap(_fn_to_wrap, name='Wrapped')
-        print("tf_plot:", tf_plot)
+        cprint("\n tf_plot: %s" % tf_plot, color='magenta')
         self.assertIsInstance(tf_plot, types.FunctionType)
 
         # TensorFlow plot_op
         plot_op = tf_plot("hello world")
-        print("plot_op:", plot_op)
         self._check_plot_op_shape(plot_op)
         self.assertEqual(plot_op.name, 'Wrapped:0')
 
@@ -52,10 +62,9 @@ class TestWrap(unittest.TestCase):
         # (case i) an instance of matplotlib axes
         from matplotlib.axes import Axes
         tf_scatter = tfplot.wrap_axesplot(Axes.scatter)
-        print("tf_scatter:", tf_scatter)
+        cprint("\n tf_scatter: %s" % tf_scatter, color='magenta')
 
         plot_op = tf_scatter([1, 2, 3], [1, 4, 9])
-        print("plot_op:", plot_op)
 
         self._check_plot_op_shape(plot_op)
         self.assertEqual(plot_op.name, 'scatter:0')
@@ -70,12 +79,11 @@ class TestWrap(unittest.TestCase):
         # TODO: _fn_to_wrap has an error
 
         tf_plot = tfplot.wrap_axesplot(fn_to_wrap)
-        print("tf_plot:", tf_plot)
+        cprint("\n tf_plot: %s" % tf_plot, color='magenta')
         self.assertIsInstance(tf_plot, types.FunctionType)
 
         # TensorFlow plot_op
         plot_op = tf_plot("hello world")
-        print("plot_op:", plot_op)
         self._check_plot_op_shape(plot_op)
         self.assertEqual(plot_op.name, 'fn_to_wrap:0')
 
@@ -86,6 +94,43 @@ class TestWrap(unittest.TestCase):
         with self.assertRaises(ValueError):
             # it should raise a ValueError about bound method
             tf_plot = tfplot.wrap_axesplot(ax.scatter)
+
+
+
+class TestDecorator(tf.test.TestCase):
+
+    def _execute_plot_op(self, op, print_image=True):
+        '''Execute the op, and get the result (e.g. ndarray) under a test session'''
+        with self.test_session():
+            cprint("\n >>> " + str(op), color='cyan')
+            ret = op.eval()
+            if print_image and sys.platform == 'darwin':
+                print(' ', end='')
+                sys.stdout.flush()
+                imgcat(ret)
+            return ret
+
+    def test_wrap_simple(self):
+        '''Use as decorator'''
+        @tfplot.wrapper.as_op
+        def foo():
+            fig, ax = tfplot.subplots()
+            ax.plot([1, 2, 3])
+            fig.tight_layout()
+            return fig
+
+        self._execute_plot_op(op=foo())
+
+    def test_wrap_withcall(self):
+        '''Use as decorator, but with function call'''
+        @tfplot.wrapper.as_op()
+        def foo():
+            fig, ax = tfplot.subplots()
+            ax.plot([1, 2, 3])
+            fig.tight_layout()
+            return fig
+
+        self._execute_plot_op(op=foo())
 
 
 if __name__ == '__main__':
