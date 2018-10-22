@@ -195,7 +195,7 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
 
 @biwrap
 def autowrap(plot_func=REQUIRED, _sentinel=None,
-             name=None, figsize=None, tight_layout=False):
+             batch=False, name=None, figsize=None, tight_layout=False):
     """
     Wrap a function as a TensorFlow operation similar to :func:`tfplot.wrap()`
     (as a decorator or with normal function call), but provides with additional
@@ -228,6 +228,8 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
         has a parameter named ``fig`` and/or ``ax``, new instances of
         ``Figure`` and/or ``AxesSubplot`` will be created and passed.
 
+      batch: If True, all the tensors passed as argument will be
+        assumed to be batched. Default value is False.
       name: A default name for the operation (optional). If not given, the
         name of ``plot_func`` will be used.
 
@@ -285,7 +287,7 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
 
         return ret
 
-    _wrapped_fn = wrap(_wrapped_plot_fn, name=name)  # TODO kwargs
+    _wrapped_fn = wrap(_wrapped_plot_fn, batch=batch, name=name)  # TODO kwargs
 
     _wrapped_fn.__name__ = 'autowrap[%s]' % plot_func.__name__
     if hasattr(plot_func, '__qualname__'):
