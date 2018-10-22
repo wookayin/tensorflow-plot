@@ -240,16 +240,19 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
     if plot_func == REQUIRED:
         raise TypeError("Required argument 'plot_func' (pos 1) not found")
 
-    def _create_subplots():
-        fig, ax = figure.subplots(figsize=figsize)
-        return fig, ax
-
     # check if func has `fig` or `ax` parameter
     func_argspec = util.getargspec(plot_func)
     fig_ax_mode = tuple(
         arg_name for arg_name in ('ax', 'fig') \
         if arg_name in (func_argspec.args + func_argspec.kwonlyargs)
     )
+
+    def _create_subplots(_kwargs):
+        # recognize overriding parameters for creating subplots, e.g. figsize
+        _figsize = _kwargs.pop('figsize', figsize)
+
+        fig, ax = figure.subplots(figsize=_figsize)
+        return fig, ax
 
     # Decorates `plot_func` with additional aspects
     # (e.g. auto-injection, return value handling)
@@ -258,7 +261,7 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
         # (1) auto-inject fig, ax
         if fig_ax_mode:
             # auto-create rather than manually
-            fig, ax = _create_subplots()
+            fig, ax = _create_subplots(kwargs_call)
         fig_ax_kwargs = dict(
             ([('fig', fig)] if 'fig' in fig_ax_mode else []) + \
             ([('ax', ax)] if 'ax' in fig_ax_mode else [])
