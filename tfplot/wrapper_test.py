@@ -175,14 +175,22 @@ class TestDecorator(tf.test.TestCase):
             self._execute_plot_op(foo_autoinject_shouldntwork())
 
     @unittest.skipIf(sys.version_info[0] < 3, "Python 3+")
-    def test_wrap_autoinject_kwonly(self):
+    def test_wrap_autoinject_kwonly_py3(self):
         """Tests whether @tfplot.autowrap on functions with keyword-only argument"""
+
+        # Python2 will raise a SyntaxError, so dynamically compile the code on runtime.
+        ctx = {}
+        exec('''if "this is Python2 SyntaxError workaround":
 
         @tfplot.autowrap
         def foo_autoinject_kwonly(*, fig, ax):
             ax.text(0.5, 0.5, "autoinject-kwonly", ha='center')
             return fig
 
+        ctx['foo_autoinject_kwonly'] = foo_autoinject_kwonly
+        ''')
+
+        foo_autoinject_kwonly = ctx['foo_autoinject_kwonly']
         self._execute_plot_op(foo_autoinject_kwonly())  # pylint: disable=missing-kwoa
 
 

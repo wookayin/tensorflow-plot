@@ -176,7 +176,7 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
         fig_axesplot_func = _fig_axesplot_method
     else:
         # (2) xyz(ax=...)
-        if 'ax' not in util.getargspec(axesplot_func).args:
+        if 'ax' not in util.getargspec_allargs(axesplot_func):
             raise TypeError("axesplot_func must take 'ax' parameter to specify Axes")
         fig_axesplot_func = _fig_axesplot_fn
 
@@ -243,10 +243,9 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
         raise TypeError("Required argument 'plot_func' (pos 1) not found")
 
     # check if func has `fig` or `ax` parameter
-    func_argspec = util.getargspec(plot_func)
     fig_ax_mode = tuple(
         arg_name for arg_name in ('ax', 'fig') \
-        if arg_name in (func_argspec.args + func_argspec.kwonlyargs)
+        if arg_name in util.getargspec_allargs(plot_func)
     )
 
     def _create_subplots(_kwargs):
