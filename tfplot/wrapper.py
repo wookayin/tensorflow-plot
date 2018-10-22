@@ -79,14 +79,15 @@ def wrap(plot_func=REQUIRED, _sentinel=None,
     if name is None:
         name = _clean_name(plot_func.__name__)
 
-    @functools.wraps(plot_func)
     def _wrapped_fn(*args, **kwargs_call):
         _plot = plot_many if batch else plot
         _name = kwargs_call.pop('name', name)
         return _plot(plot_func, list(args), name=_name,
                      **merge_kwargs(kwargs, kwargs_call))
 
-    _wrapped_fn.__name__ = 'wrapped_fn[%s]' % plot_func
+    _wrapped_fn.__name__ = 'wrap[%s]' % plot_func.__name__
+    if hasattr(plot_func, '__qualname__'):
+        _wrapped_fn.__qualname__ = 'wrap[%s.%s]' % (plot_func.__module__, plot_func.__qualname__)
     return _wrapped_fn
 
 
@@ -281,7 +282,12 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
 
         return ret
 
-    return wrap(_wrapped_plot_fn, name=name)  # TODO kwargs
+    _wrapped_fn = wrap(_wrapped_plot_fn, name=name)  # TODO kwargs
+
+    _wrapped_fn.__name__ = 'autowrap[%s]' % plot_func.__name__
+    if hasattr(plot_func, '__qualname__'):
+        _wrapped_fn.__qualname__ = 'autowrap[%s.%s]' % (plot_func.__module__, plot_func.__qualname__)
+    return _wrapped_fn
 
 
 def _clean_name(s):
