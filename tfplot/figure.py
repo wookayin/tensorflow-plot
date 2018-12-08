@@ -81,7 +81,7 @@ def to_array(fig):
     fig.canvas.draw()
     w, h = fig.canvas.get_width_height()
 
-    img = np.fromstring(fig.canvas.tostring_argb(), dtype=np.uint8, sep='')
+    img = np.frombuffer(fig.canvas.tostring_argb(), dtype=np.uint8)
     img = img.reshape((h, w, 4))
     img = img[:, :, (1, 2, 3, 0)]   # argb -> rgba
     return img
