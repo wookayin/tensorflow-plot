@@ -1,6 +1,6 @@
 -e .
 
 # test/dev environment
-tensorflow>=1.4.0
+tensorflow>=1.12.0
 
 # vim: set ft=conf:
