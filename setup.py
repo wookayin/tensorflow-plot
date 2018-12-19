@@ -104,6 +104,7 @@ setup(
         'pytest-pudb',
         'imgcat',
         'termcolor',
+        'scikit-image',
     ],
     cmdclass={
         'deploy': DeployCommand,
