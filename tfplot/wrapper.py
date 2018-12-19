@@ -95,6 +95,9 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
                   batch=False, name=None,
                   figsize=None, tight_layout=False, **kwargs):
     '''
+    DEPRECATED: Use ``tfplot.autowrap()`` instead. Will be removed
+    in the next version.
+
     Wrap an axesplot function as a TensorFlow operation.  It will return a
     python function that creates a TensorFlow plot operation applying the
     arguments as input.
@@ -248,6 +251,17 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
         if arg_name in util.getargspec_allargs(plot_func)
     )
 
+    # check if func is an instance method of Axes, e.g. ax.scatter()
+    method_class = util.get_class_defining_method(plot_func)
+    is_axesplot_bind = False
+    if method_class is not None and issubclass(method_class, Axes):
+        if hasattr(plot_func, '__self__') and plot_func.__self__:
+            raise ValueError("plot_func should be a unbound method of " +
+                             "Axes or AxesSubplot, but given a bound method " +
+                             str(plot_func))
+        is_axesplot_bind = True
+
+
     def _create_subplots(_kwargs):
         # recognize overriding parameters for creating subplots, e.g. figsize
         _figsize = _kwargs.pop('figsize', figsize)
@@ -260,7 +274,7 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
     @functools.wraps(plot_func)
     def _wrapped_plot_fn(*args, **kwargs_call):
         # (1) auto-inject fig, ax
-        if fig_ax_mode:
+        if fig_ax_mode or is_axesplot_bind:
             # auto-create rather than manually
             fig, ax = _create_subplots(kwargs_call)
         fig_ax_kwargs = dict(
@@ -269,12 +283,20 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
         )
 
         # (2) body
-        ret = plot_func(*args, **merge_kwargs(kwargs_call, fig_ax_kwargs))  # TODO conflict??
+        if is_axesplot_bind:   # e.g. Axesplot.scatter -> bind 'ax' as self
+            ret = plot_func.__get__(ax)(
+                *args, **merge_kwargs(kwargs_call, fig_ax_kwargs))
+        else:
+            ret = plot_func(*args, **merge_kwargs(kwargs_call, fig_ax_kwargs))  # TODO conflict??
 
         # (3) return value handling
         if ret is None and fig_ax_mode:
             # even if the function doesn't return anything,
             # but we know that `fig` is what we just need to draw.
+            ret = fig
+        elif is_axesplot_bind:
+            # for Axesplot methods, ignore the return value
+            # and use the fig instance created before as target figure
             ret = fig
         elif isinstance(ret, Axes):
             ret = fig = ret.figure
@@ -304,4 +326,5 @@ def _clean_name(s):
 __all__ = (
     'wrap',
     'wrap_axesplot',
+    'autowrap',
 )

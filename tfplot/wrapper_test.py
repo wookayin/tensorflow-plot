@@ -36,7 +36,6 @@ class TestWrap(unittest.TestCase):
         self.assertTrue(op.get_shape().is_compatible_with([None, None, 4]))   # RGB-A
         self.assertEqual(op.dtype, tf.uint8)
 
-
     def test_wrap_simplefunction(self):
         '''Basic functionality test of tfplot.wrap() in successful cases.'''
 
@@ -55,7 +54,6 @@ class TestWrap(unittest.TestCase):
         self._check_plot_op_shape(plot_op)
         self.assertEqual(plot_op.name, 'Wrapped:0')
 
-
     def test_wrap_axesplot_axes(self):
         '''Basic functionality test of tfplot.wrap_axesplot() in successful cases.'''
 
@@ -65,9 +63,8 @@ class TestWrap(unittest.TestCase):
         cprint("\n tf_scatter: %s" % tf_scatter, color='magenta')
 
         plot_op = tf_scatter([1, 2, 3], [1, 4, 9])
-
         self._check_plot_op_shape(plot_op)
-        self.assertEqual(plot_op.name, 'scatter:0')
+        self.assertRegex(plot_op.name, 'scatter(_\d)?:0')
 
     def test_wrap_axesplot_kwarg(self):
         '''Basic functionality test of tfplot.wrap_axesplot() in successful cases.'''
@@ -144,6 +141,17 @@ class TestDecorator(tf.test.TestCase):
 
         op = foo(tf.convert_to_tensor([2, 2, 3, 3]))
         self._execute_plot_op(op)
+
+    def test_autowrap_axesplot(self):
+        '''Does autowrap also work with Axes.xxxx methods?
+        needs to handle binding (e.g. self) carefully! '''
+        from matplotlib.axes import Axes
+        tf_scatter = tfplot.autowrap(Axes.scatter, name='ScatterAutowrap')
+        cprint("\n tf_scatter: %s" % tf_scatter, color='magenta')
+
+        op = tf_scatter([1, 2, 3], [1, 4, 9])
+        self._execute_plot_op(op)
+
 
     def test_wrap_autoinject_figax(self):
         """Tests whether @tfplot.autowrap work in many use cases"""
