@@ -21,48 +21,82 @@ as an image summary in [TensorBoard][tensorboard].
 <img src="./assets/tensorboard-plot-summary.png" width="70%" />
 </p>
 
+
 Quick Overview
 --------------
 
-We can wrap *any* pre-existing functions for plotting, e.g.,
-[`seaborn.heatmap`](http://seaborn.pydata.org/generated/seaborn.heatmap.html) or [matplotlib `Axes`](https://matplotlib.org/api/axes_api.html),
-as a Tensorflow op:
+There are two main ways of using `tfplot`: (i) Use as TF op, and (ii) Manually add summary protos.
+
+### Usage: Decorator
+
+You can directly declare a Tensor factory by using [`tfplot.autowrap`][tfplot-autowrap] as a decorator.
+In the body of the wrapped function you can add any logic for drawing plots. Example:
+
+```python
+@tfplot.autowrap(figsize=(2, 2))
+def plot_scatter(x: np.ndarray, y: np.ndarray, *, ax, color='red'):
+    ax.scatter(x, y, color=color)
+
+x = tf.constant([1, 2, 3], dtype=tf.float32)     # tf.Tensor
+y = tf.constant([1, 4, 9], dtype=tf.float32)     # tf.Tensor
+plot_op = plot_scatter(x, y)                     # tf.Tensor shape=(?, ?, 4) dtype=uint8
+```
+
+
+### Usage: Wrap as TF ops
+
+We can [wrap][tfplot-autowrap] **any** pure python function for plotting as a Tensorflow op, such as:
+
+- (i) A python function that creates and return a matplotlib `Figure` (see below)
+- (ii) A python function that has `fig` or `ax` keyword parameters (will be auto-injected);
+  e.g. [`seaborn.heatmap`](http://seaborn.pydata.org/generated/seaborn.heatmap.html)
+- (iii) A method instance of [matplotlib `Axes`](https://matplotlib.org/api/axes_api.html);
+  e.g. [`Axes.scatter`](https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.scatter.html#matplotlib.axes.Axes.scatter)
+
+Example of (i): You can define a python function that takes `numpy.ndarray` values as input (as an argument of Tensor input),
+and draw a plot as a return value of `matplotlib.figure.Figure`.
+The resulting TensorFlow plot op will be a RGBA image tensor of shape `[height, width, 4]` containing the resulting plot.
+
+
+```python
+def figure_heatmap(heatmap, cmap='jet'):
+    # draw a heatmap with a colorbar
+    fig, ax = tfplot.subplots(figsize=(4, 3))       # DON'T USE plt.subplots() !!!!
+    im = ax.imshow(heatmap, cmap=cmap)
+    fig.colorbar(im)
+    return fig
+
+heatmap_tensor = ...   # tf.Tensor shape=(16, 16) dtype=float32
+
+# (a) wrap function as a Tensor factory
+plot_op = tfplot.autowrap(figure_heatmap)(heatmap_tensor)      # tf.Tensor shape=(?, ?, 4) dtype=uint8
+
+# (b) direct invocation similar to tf.py_func
+plot_op = tfplot.plot(figure_heatmap, [heatmap_tensor], cmap='jet')
+
+# (c) or just directly add an image summary with the plot
+tfplot.summary.plot("heatmap_summary", figure_heatmap, [heatmap_tensor])
+```
+
+Example of (ii):
 
 ```python tfplot
 import tfplot
 import seaborn.apionly as sns
 
-tf_heatmap = tfplot.wrap_axesplot(sns.heatmap, figsize=(4, 4), batch=True)
-tf.summary.image("attention_maps", tf_heatmap(attention_maps))
+tf_heatmap = tfplot.autowrap(sns.heatmap, figsize=(4, 4), batch=True)   # function: Tensor -> Tensor
+plot_op = tf_heatmap(attention_maps)   # tf.Tensor shape=(?, 400, 400, 4) dtype=uint8
+tf.summary.image("attention_maps", plot_op)
 ```
 
-Alternatively, if you need more flexibility on plots,
-just define a python function that takes `numpy.ndarray` values as input,
-draw a plot, and return it as a `matplotlib.figure.Figure` object.
-Then, `tfplot.plot()` will wrap this function as a TensorFlow operation,
-which will produce a RGB-A image tensor `[height, width, 4]` containing the resulting plot.
+Please take a look at the [the showcase][examples-showcase] or [examples directory][examples-dir] for more examples and use cases.
 
-```python
-def figure_heatmap(heatmap, cmap='jet'):
-    # draw a heatmap with a colorbar
-    fig, ax = tfplot.subplots(figsize=(4, 3))
-    im = ax.imshow(heatmap, cmap=cmap)
-    fig.colorbar(im)
-    return fig
+[The full documentation][documentation] including API docs can be found at [readthedocs][documentation].
 
-# heatmap_tensor : a float32 Tensor of shape [16, 16], for example
-plot_op = tfplot.plot(figure_heatmap, [heatmap_tensor], cmap='jet')
 
-# Or just directly add an image summary with the plot
-tfplot.summary.plot("heatmap_summary", figure_heatmap, [heatmap_tensor])
-```
+### Usage: Manually add summary protos
 
-Please take a look at the
-[the showcase][examples-showcase] or [examples directory][examples-dir]
-for more examples and use cases.
-
-[The full documentation][documentation] including API docs, can be found at [readthedocs][documentation].
-
+TODO: Add documentation here.
 
 
 Installation
@@ -83,8 +117,8 @@ Note
 
 ### Some comments
 
-Matplotlib operations can be *very* slow as Matplotlib runs in python, so please be aware of runtime performance.
-There is still a room for improvement, which will be added sometimes later.
+Matplotlib operations can be *very* slow as Matplotlib runs in python, so please watch out for runtime performance.
+There is still a room for improvement, which will be addressed in the near future.
 
 Moreover, it might be also a good idea to draw plots from the main code (rather than having a TF op) and add them as image summaries.
 Please use this library with your best discernment.
@@ -102,7 +136,7 @@ For example, avoid any use of `pyplot` (or `plt`):
 ```python
 # DON'T DO LIKE THIS !!!
 def figure_heatmap(heatmap):
-    fig = plt.figure()
+    fig = plt.figure()                 # <--- NO!
     plt.imshow(heatmap)
     return fig
 ```
@@ -120,6 +154,7 @@ def figure_heatmap(heatmap):
 
 For example, `tfplot.subplots()` is a good replacement for `plt.subplots()`
 to use inside plot functions.
+Alternatively, you can just take advantage of automatic injection of `fig` and/or `ax`.
 
 
 [pypi_tfplot]: https://pypi.python.org/pypi/tfplot
@@ -130,6 +165,8 @@ to use inside plot functions.
 [examples-dir]: https://github.com/wookayin/tensorflow-plot/blob/master/examples/
 [examples-showcase]: https://github.com/wookayin/tensorflow-plot/blob/master/examples/showcases.ipynb
 [documentation]: http://tensorflow-plot.readthedocs.io/en/latest/
+
+[tfplot-autowrap]: https://tensorflow-plot.readthedocs.io/en/latest/api/tfplot.html#tfplot.autowrap
 
 
 License

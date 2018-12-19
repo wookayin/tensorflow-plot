@@ -10,3 +10,4 @@
 .. autofunction:: tfplot.plot_many
 .. autofunction:: tfplot.wrap
 .. autofunction:: tfplot.wrap_axesplot
+.. autofunction:: tfplot.autowrap
