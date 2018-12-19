@@ -38,9 +38,17 @@ def get_class_defining_method(m):
 # getargspec(fn)
 if six.PY2:
     getargspec = inspect.getargspec
-else:
+
+    def getargspec_allargs(func):
+        argspec = getargspec(func)
+        return argspec.args
+
+else: # Python 3
     getargspec = inspect.getfullargspec
 
+    def getargspec_allargs(func):
+        argspec = getargspec(func)
+        return argspec.args + argspec.kwonlyargs
 
 
 def merge_kwargs(kwargs, kwargs_new):

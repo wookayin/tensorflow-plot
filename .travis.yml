@@ -9,4 +9,5 @@ install:
   - pip install -r requirements.txt
 
 script:
-  pytest
+  - PYTEST_ADDOPTS="-s" python setup.py test
+  - pip install -e .

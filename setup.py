@@ -93,6 +93,7 @@ setup(
     install_requires=[
         'six',
         'numpy',
+        'biwrap==0.1.6',
         'matplotlib>=2.0.0',
     ],
     setup_requires=[
@@ -100,6 +101,9 @@ setup(
     ],
     tests_require=[
         'pytest',
+        'pytest-pudb',
+        'imgcat',
+        'termcolor',
     ],
     cmdclass={
         'deploy': DeployCommand,

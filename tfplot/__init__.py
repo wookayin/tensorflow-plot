@@ -5,7 +5,10 @@ from __future__ import print_function
 import matplotlib
 matplotlib.use('Agg')
 
-from .ops import plot, plot_many, wrap, wrap_axesplot
+from .ops import plot, plot_many
+from .wrapper import wrap, wrap_axesplot
+from .wrapper import autowrap
+
 from .figure import subplots
 from . import summary
 
