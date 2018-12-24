@@ -22,7 +22,7 @@ from termcolor import cprint
 import numpy as np
 
 import tfplot.figure
-import skimage.data
+import scipy.misc
 
 
 # some fixtures as in showcases.ipynb
@@ -103,18 +103,18 @@ class TestOps(tf.test.TestCase):
         '''1.3 with kwargs'''
 
         attention_tensor = fake_attention()
-        image_tensor = tf.constant(skimage.data.chelsea())
+        image_tensor = tf.constant(scipy.misc.face())
 
         # (a) default execution
         plot_op = tfplot.plot(_overlay_attention, [attention_tensor, image_tensor])
         r = self._execute_plot_op(plot_op, print_image=True)
-        self.assertEquals(hash_image(r), 'da9c77d5a7b2fe38a4e0985c0b5fc4f68cd269c0')
+        self.assertEquals(hash_image(r), 'c2d64dedd4aa54218e6df95bfeb03bbc17bd17fa')
 
         # (b) override cmap and alpha
         plot_op = tfplot.plot(_overlay_attention, [attention_tensor, image_tensor],
                               cmap='gray', alpha=0.8)
         r = self._execute_plot_op(plot_op, print_image=True)
-        self.assertEquals(hash_image(r), 'e49475e0452fd744864b118c0464bdf1e12d678d')
+        self.assertEquals(hash_image(r), '31c8029aed7bbafe37bb8c451a3220d573d2d0e0')
 
 
         # TODO: how to compare images?
@@ -123,7 +123,7 @@ class TestOps(tf.test.TestCase):
         '''1.4 plot_many'''
         # make a fake batch
         batch_size = 3
-        image_tensor = tf.constant(skimage.data.chelsea())
+        image_tensor = tf.constant(scipy.misc.face())
         attention_batch = tf.random_gamma([batch_size, 7, 7], alpha=0.3, seed=42)
         image_batch = tf.tile(tf.expand_dims(image_tensor, 0),
                               [batch_size, 1, 1, 1], name='image_batch') # copy

@@ -11,6 +11,27 @@ from setuptools import setup, Command
 __PATH__ = os.path.abspath(os.path.dirname(__file__))
 
 
+install_requires = [
+    'six',
+    'numpy',
+    'biwrap==0.1.6',
+    'matplotlib>=2.0.0',
+]
+
+test_require = [
+    'pytest',
+    'pytest-pudb',
+    'imgcat',
+    'termcolor',
+    'scipy',
+]
+
+# temporarily redirect config directory to prevent matplotlib and skimage
+# cause a SandboxViolationError on Travis CI environments.
+os.environ["MPLCONFIGDIR"] = "."
+
+
+
 def read_version():
     # importing the package causes an ImportError :-)
     with open(os.path.join(__PATH__, 'tfplot/__init__.py')) as f:
@@ -90,21 +111,10 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
     ],
-    install_requires=[
-        'six',
-        'numpy',
-        'biwrap==0.1.6',
-        'matplotlib>=2.0.0',
-    ],
+    install_requires=install_requires,
+    tests_require=test_require,
     setup_requires=[
         'pytest-runner',
-    ],
-    tests_require=[
-        'pytest',
-        'pytest-pudb',
-        'imgcat',
-        'termcolor',
-        'scikit-image',
     ],
     cmdclass={
         'deploy': DeployCommand,
