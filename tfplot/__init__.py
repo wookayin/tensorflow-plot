@@ -3,7 +3,8 @@ from __future__ import division
 from __future__ import print_function
 
 import matplotlib
-matplotlib.use('Agg')
+if not matplotlib.rcParams.get('backend', None):
+    matplotlib.use('Agg')
 
 from .ops import plot, plot_many
 from .wrapper import wrap, wrap_axesplot

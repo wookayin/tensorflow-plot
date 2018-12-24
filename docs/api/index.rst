@@ -8,4 +8,5 @@ API References
 
     tfplot
     figure
+    contrib
     summary
