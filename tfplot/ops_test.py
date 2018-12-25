@@ -1,14 +1,17 @@
+# -*- coding: utf-8 -*-
 '''Unit Test for tfplot.ops'''
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import unittest
 import types
 import sys
 import os
 import hashlib
+import six
 
 import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # filter out INFO and WARN logs
@@ -104,8 +107,29 @@ class TestOps(test_util.TestcaseBase):
         r = self._execute_plot_op(plot_op, print_image=True)
         self.assertEquals(test_util.hash_image(r), '31c8029aed7bbafe37bb8c451a3220d573d2d0e0')
 
-
         # TODO: how to compare images?
+
+    def test_plot_with_unicode(self):
+        unicode_type = six.text_type
+
+        def fig_text_placeholder_scalar(text_scalar):
+            fig, ax = tfplot.subplots(figsize=(4, 1))
+            assert isinstance(text_scalar, unicode_type), str(type(text_scalar))
+            ax.text(0.5, 0.5, text_scalar, ha='center', va='center')
+            return fig
+        self._execute_plot_op(tfplot.plot(fig_text_placeholder_scalar,
+                                          [u"unicode should work here ↑↓★"]))
+
+        def fig_text_placeholder_tensor(text_tensor):
+            fig, ax = tfplot.subplots(figsize=(4, 1))
+            assert isinstance(text_tensor[0], unicode_type), str(type(text_tensor[0]))
+            assert isinstance(text_tensor[1], unicode_type), str(type(text_tensor[1]))
+            ax.text(0.5, 0.7, text_tensor[0], ha='center', va='center')
+            ax.text(0.5, 0.3, text_tensor[1], ha='center', va='center')
+            return fig
+        self._execute_plot_op(tfplot.plot(fig_text_placeholder_tensor, [
+            tf.convert_to_tensor(["ascii", u"unicode ★"])
+        ]))
 
     def test_plot_many(self):
         '''1.4 plot_many'''

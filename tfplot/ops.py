@@ -13,7 +13,7 @@ import numpy as np
 
 from . import figure
 from . import util
-from .util import merge_kwargs
+from .util import merge_kwargs, decode_bytes_if_necessary
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
@@ -59,7 +59,16 @@ def plot(plot_func, in_tensors, name='Plot',
             raise TypeError("in_tensors should be a list of Tensors, " +
                             "given {}".format(type(in_tensors)))
 
+    in_tensors = [tf.convert_to_tensor(t) for t in in_tensors]
+
     def _render_image(*args):
+        # `args` is (a tuple of) python values
+
+        # for tf.string tensors, decode into unicode if necessary.
+        args = tuple(
+            (decode_bytes_if_necessary(arg) if t.dtype == tf.string else arg) \
+            for (arg, t) in zip(args, in_tensors)
+        )
         fig = plot_func(*args, **kwargs)
 
         if not isinstance(fig, Figure):

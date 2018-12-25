@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import inspect
 import six
+import numpy as np
 
 
 def get_class_defining_method(m):
@@ -63,6 +64,21 @@ def merge_kwargs(kwargs, kwargs_new):
     kwargs = kwargs.copy()
     kwargs.update(kwargs_new)
     return kwargs
+
+
+_np_decode = np.vectorize(lambda b: b.decode('utf8'))
+
+def decode_bytes_if_necessary(arg):
+    """
+    Decodes scalar bytes and ndarray of bytes into unicode counterparts.
+    """
+    if isinstance(arg, bytes):
+        # Regardless of python 2 and 3, return as unicode.
+        return arg.decode('utf8')
+    if isinstance(arg, np.ndarray) and arg.dtype == object:
+        return _np_decode(arg)
+    else:
+        return arg
 
 
 __all__ = (
