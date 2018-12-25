@@ -8,6 +8,7 @@ import unittest
 import types
 import sys
 import os
+import re
 
 import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # filter out INFO and WARN logs
@@ -64,7 +65,7 @@ class TestWrap(unittest.TestCase):
 
         plot_op = tf_scatter([1, 2, 3], [1, 4, 9])
         self._check_plot_op_shape(plot_op)
-        self.assertRegex(plot_op.name, 'scatter(_\d)?:0')
+        self.assertTrue(re.match('scatter(_\d)?:0', plot_op.name))
 
     def test_wrap_axesplot_kwarg(self):
         '''Basic functionality test of tfplot.wrap_axesplot() in successful cases.'''

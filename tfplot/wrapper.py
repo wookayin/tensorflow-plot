@@ -284,8 +284,7 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
 
         # (2) body
         if is_axesplot_bind:   # e.g. Axesplot.scatter -> bind 'ax' as self
-            ret = plot_func.__get__(ax)(
-                *args, **merge_kwargs(kwargs_call, fig_ax_kwargs))
+            ret = plot_func.__get__(ax)(*args, **kwargs_call)
         else:
             ret = plot_func(*args, **merge_kwargs(kwargs_call, fig_ax_kwargs))  # TODO conflict??
 
