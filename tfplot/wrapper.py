@@ -310,9 +310,11 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
     # return the wrapper (a factory of Tensor)
     _wrapped_fn = wrap(_wrapped_plot_fn, batch=batch, name=name)  # TODO kwargs
 
+    _wrapped_fn.__module__ = plot_func.__module__
     _wrapped_fn.__name__ = 'autowrap[%s]' % plot_func.__name__
     if hasattr(plot_func, '__qualname__'):
         _wrapped_fn.__qualname__ = 'autowrap[%s.%s]' % (plot_func.__module__, plot_func.__qualname__)
+
 
     # expose the unwrapped python function as well
     _wrapped_fn.__unwrapped__ = plot_func

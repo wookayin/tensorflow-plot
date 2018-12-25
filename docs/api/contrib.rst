@@ -1,6 +1,6 @@
-.. _api_tfplot_summary:
+.. _api_tfplot_contrib:
 
-:mod:`tfplot.summary`
+:mod:`tfplot.contrib`
 ---------------------
 
 .. contents::

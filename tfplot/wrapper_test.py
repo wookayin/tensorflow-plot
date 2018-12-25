@@ -21,6 +21,7 @@ from imgcat import imgcat
 from termcolor import cprint
 
 import tfplot.figure
+import tfplot.test_util as test_util
 
 
 class TestWrap(unittest.TestCase):
@@ -95,19 +96,7 @@ class TestWrap(unittest.TestCase):
 
 
 
-class TestDecorator(tf.test.TestCase):
-
-    def _execute_plot_op(self, op, print_image=True):
-        '''Execute the op, and get the result (e.g. ndarray) under a test session'''
-        with self.test_session():
-            cprint("\n >>> " + str(op), color='cyan')
-            self.assertIsInstance(op, tf.Tensor)
-            ret = op.eval()
-            if print_image and sys.platform == 'darwin':
-                print(' ', end='')
-                sys.stdout.flush()
-                imgcat(ret)
-            return ret
+class TestDecorator(test_util.TestcaseBase):
 
     def test_wrap_simple(self):
         '''Use as decorator'''

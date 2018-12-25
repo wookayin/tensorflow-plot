@@ -22,7 +22,9 @@ from termcolor import cprint
 import numpy as np
 
 import tfplot.figure
+import tfplot.test_util as test_util
 import scipy.misc
+
 
 
 # some fixtures as in showcases.ipynb
@@ -35,8 +37,6 @@ def fake_attention():
     return attention
 
 
-def hash_image(img):
-    return hashlib.sha1(img.tobytes()).hexdigest()
 
 # the plot function can have additional kwargs for providing configuration points
 def _overlay_attention(attention, image,
@@ -54,22 +54,10 @@ def _overlay_attention(attention, image,
 
 
 
-class TestOps(tf.test.TestCase):
+class TestOps(test_util.TestcaseBase):
     '''
     Tests tfplot.ops
     '''
-    def _execute_plot_op(self, op, print_image=False, feed_dict={}):
-        '''Execute the op, and get the result (e.g. ndarray) under a test session'''
-        with self.test_session() as sess:
-            cprint("\n >>> " + str(op), color='cyan')
-            self.assertIsInstance(op, tf.Tensor)
-            ret = sess.run(op, feed_dict=feed_dict)
-            if print_image and sys.platform == 'darwin':
-                print(' ', end='')
-                sys.stdout.flush()
-                imgcat(ret)
-                print('SHA1: ' + hash_image(ret))
-            return ret
 
     # ----------------------------------------------------------------------
 
@@ -108,13 +96,13 @@ class TestOps(tf.test.TestCase):
         # (a) default execution
         plot_op = tfplot.plot(_overlay_attention, [attention_tensor, image_tensor])
         r = self._execute_plot_op(plot_op, print_image=True)
-        self.assertEquals(hash_image(r), 'c2d64dedd4aa54218e6df95bfeb03bbc17bd17fa')
+        self.assertEquals(test_util.hash_image(r), 'c2d64dedd4aa54218e6df95bfeb03bbc17bd17fa')
 
         # (b) override cmap and alpha
         plot_op = tfplot.plot(_overlay_attention, [attention_tensor, image_tensor],
                               cmap='gray', alpha=0.8)
         r = self._execute_plot_op(plot_op, print_image=True)
-        self.assertEquals(hash_image(r), '31c8029aed7bbafe37bb8c451a3220d573d2d0e0')
+        self.assertEquals(test_util.hash_image(r), '31c8029aed7bbafe37bb8c451a3220d573d2d0e0')
 
 
         # TODO: how to compare images?
