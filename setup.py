@@ -24,6 +24,7 @@ test_require = [
     'imgcat',
     'termcolor',
     'scipy',
+    'seaborn>=0.8.0',
 ]
 
 # temporarily redirect config directory to prevent matplotlib and skimage

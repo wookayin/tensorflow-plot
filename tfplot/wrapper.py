@@ -61,7 +61,7 @@ def wrap(plot_func=REQUIRED, _sentinel=None,
       name: A default name for the operation (optional). If not given, the
         name of ``plot_func`` will be used.
       kwargs: An optional kwargs that will be passed by default to
-        ``plot_func``.
+        ``plot_func`` when executed inside a TensorFlow graph.
 
     Returns:
       A python function that will create a TensorFlow plot operation,
@@ -200,7 +200,8 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
 
 @biwrap
 def autowrap(plot_func=REQUIRED, _sentinel=None,
-             batch=False, name=None, figsize=None, tight_layout=False):
+             batch=False, name=None, figsize=None, tight_layout=False,
+             **kwargs_default):
     """
     Wrap a function as a TensorFlow operation similar to :func:`tfplot.wrap()`
     (as a decorator or with normal function call), but provides with additional
@@ -241,6 +242,8 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
       figsize: The figure size for the figure to be created.
       tight_layout: If True, the resulting figure will have no margins for
         axis. Equivalent to calling ``fig.subplots_adjust(0, 0, 1, 1)``.
+      kwargs_default: An optimal kwargs that will be passed by default to
+        ``plot_func`` when executed inside a TensorFlow graph.
 
     """
 
@@ -310,7 +313,8 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
         return ret
 
     # return the wrapper (a factory of Tensor)
-    _wrapped_fn = wrap(_wrapped_plot_fn, batch=batch, name=name)  # TODO kwargs
+    _wrapped_fn = wrap(_wrapped_plot_fn, batch=batch, name=name,
+                       **kwargs_default)
 
     _wrapped_fn.__name__ = 'autowrap[%s]' % plot_func.__name__
     if hasattr(plot_func, '__qualname__'):

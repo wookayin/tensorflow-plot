@@ -19,12 +19,14 @@ matplotlib.rcParams['figure.figsize'] = (2.5, 2.5)
 
 from imgcat import imgcat
 from termcolor import cprint
+import seaborn as sns
+import numpy as np
 
 import tfplot.figure
 import tfplot.test_util as test_util
 
 
-class TestWrap(unittest.TestCase):
+class TestWrap(test_util.TestcaseBase):
     '''
     Tests tfplot.wrap() and wrap_axesplot()
     '''
@@ -94,9 +96,46 @@ class TestWrap(unittest.TestCase):
             # it should raise a ValueError about bound method
             tf_plot = tfplot.wrap_axesplot(ax.scatter)
 
+    def test_autowrap_call_axesplot(self):
+        '''Does autowrap also work with Axes.xxxx methods?
+        needs to handle binding (e.g. self) carefully! '''
+        from matplotlib.axes import Axes
+        tf_scatter = tfplot.autowrap(Axes.scatter, name='ScatterAutowrap')
+        cprint("\n tf_scatter: %s" % tf_scatter, color='magenta')
+
+        op = tf_scatter([1, 2, 3], [1, 4, 9])
+        self._execute_plot_op(op)
+
+    def test_autowrap_call_extrakwargs(self):
+        '''when calling autowrap to wrap a seaborn plot function,
+        additional kwargs (non-standard) should be applied as default arguments
+        for the actual py.func invocation.'''
+        tf_heatmap = tfplot.autowrap(sns.heatmap, figsize=(2, 2),
+                                     tight_layout=True, cmap='jet', cbar=False,
+                                     xticklabels=False, yticklabels=False)
+        op = tf_heatmap(tf.constant(np.eye(5)))
+        r = self._execute_plot_op(op)
+        self.assertEquals(test_util.hash_image(r), '528047f739fe6dc4ba4ec1738b3a44b5bc95ecff')
+
+    def test_autowrap_call_extrakwargs_unknownargswillerror(self):
+        '''additional kwargs should be applied to the py.func,
+        but unknown arguments should be trigger an error.'''
+        def known_func(x, ax=None):
+            assert (x is not None) and (ax is not None)
+        tf_heatmap = tfplot.autowrap(known_func, figsize=(2, 2),
+                                     unknown_arg_should_be_error='ERRRRRRRR')
+        op = tf_heatmap(tf.constant(np.eye(5)))
+
+        from tensorflow.python.framework.errors_impl import InvalidArgumentError
+        with self.assertRaises(InvalidArgumentError):
+            r = self._execute_plot_op(op)
+
 
 
 class TestDecorator(test_util.TestcaseBase):
+    """
+    Usage of tfplot.wrap() and tfplot.autowrap() as decorator.
+    """
 
     def test_wrap_simple(self):
         '''Use as decorator'''
@@ -131,17 +170,6 @@ class TestDecorator(test_util.TestcaseBase):
 
         op = foo(tf.convert_to_tensor([2, 2, 3, 3]))
         self._execute_plot_op(op)
-
-    def test_autowrap_axesplot(self):
-        '''Does autowrap also work with Axes.xxxx methods?
-        needs to handle binding (e.g. self) carefully! '''
-        from matplotlib.axes import Axes
-        tf_scatter = tfplot.autowrap(Axes.scatter, name='ScatterAutowrap')
-        cprint("\n tf_scatter: %s" % tf_scatter, color='magenta')
-
-        op = tf_scatter([1, 2, 3], [1, 4, 9])
-        self._execute_plot_op(op)
-
 
     def test_wrap_autoinject_figax(self):
         """Tests whether @tfplot.autowrap work in many use cases"""

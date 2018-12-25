@@ -15,7 +15,7 @@ def hash_image(img):
 
 class TestcaseBase(tf.test.TestCase):
 
-    def _execute_plot_op(self, op, print_image=False, feed_dict={}):
+    def _execute_plot_op(self, op, print_image=True, feed_dict={}):
         '''
         Execute the op, and get the result (e.g. ndarray) under a test session
         '''

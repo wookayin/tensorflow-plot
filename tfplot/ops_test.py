@@ -117,6 +117,6 @@ class TestOps(test_util.TestcaseBase):
                               [batch_size, 1, 1, 1], name='image_batch') # copy
 
         plot_op = tfplot.plot_many(_overlay_attention, [attention_batch, image_batch])
-        r = self._execute_plot_op(plot_op)
+        r = self._execute_plot_op(plot_op, print_image=False)
         #for i in range(3): imgcat(r[i])
         self.assertEquals(r.shape, (3, 400, 400, 4))
