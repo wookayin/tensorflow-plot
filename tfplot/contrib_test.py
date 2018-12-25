@@ -35,7 +35,13 @@ class TestContrib(test_util.TestcaseBase):
                   fn=fn, module=fn.__module__))
             self.assertTrue(fn.__module__.startswith('tfplot.contrib'),
                             msg=str(fn.__module__))
+            self.assertTrue(fn.__doc__, '__doc__ is empty')
 
+    def test_probmap(self):
+        image_tensor = tf.constant(scipy.misc.face())
+        attention_tensor = np.eye(5)
+        op = tfplot.contrib.probmap(attention_tensor, figsize=(4, 3))
+        self._execute_plot_op(op, print_image=True)
 
 
 if __name__ == '__main__':

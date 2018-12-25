@@ -79,6 +79,7 @@ def wrap(plot_func=REQUIRED, _sentinel=None,
     if name is None:
         name = _clean_name(plot_func.__name__)
 
+    @functools.wraps(plot_func)
     def _wrapped_fn(*args, **kwargs_call):
         _plot = plot_many if batch else plot
         _name = kwargs_call.pop('name', name)
@@ -186,6 +187,7 @@ def wrap_axesplot(axesplot_func, _sentinel=None,
     if name is None:
         name = _clean_name(axesplot_func.__name__)
 
+    @functools.wraps(axesplot_func)
     def _wrapped_factory_fn(*args, **kwargs_call):
         _plot = plot_many if batch else plot
         _name = kwargs_call.pop('name', name)
@@ -310,7 +312,6 @@ def autowrap(plot_func=REQUIRED, _sentinel=None,
     # return the wrapper (a factory of Tensor)
     _wrapped_fn = wrap(_wrapped_plot_fn, batch=batch, name=name)  # TODO kwargs
 
-    _wrapped_fn.__module__ = plot_func.__module__
     _wrapped_fn.__name__ = 'autowrap[%s]' % plot_func.__name__
     if hasattr(plot_func, '__qualname__'):
         _wrapped_fn.__qualname__ = 'autowrap[%s.%s]' % (plot_func.__module__, plot_func.__qualname__)
