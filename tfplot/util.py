@@ -85,4 +85,5 @@ __all__ = (
     'get_class_defining_method',
     'getargspec',
     'merge_kwargs',
+    'decode_bytes_if_necessary',
 )

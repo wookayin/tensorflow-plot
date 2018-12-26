@@ -5,8 +5,10 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
+import six
 
 from . import ops
+from . import wrapper
 
 
 def plot(name, plot_func, in_tensors, collections=None, **kwargs):
@@ -140,8 +142,11 @@ def wrap(plot_func, _sentinel=None,
         raise RuntimeError("Invalid call: it can have only one unnamed argument, " +
                            "please pass named arguments for batch, name, etc.")
 
-    factory_fn = ops.wrap(plot_func, batch=batch, name=name, **kwargs)
+    factory_fn = wrapper.autowrap(plot_func, batch=batch, name=name, **kwargs)
     def _summary_fn(summary_name, *args, **kwargs_call):
+        if not isinstance(summary_name, six.string_types):
+            raise TypeError("summary_name should be a string")
+
         plot_op = factory_fn(*args, **kwargs_call)
         return tf.summary.image(summary_name, plot_op,
                                 max_outputs=kwargs_call.pop('max_outputs', 3),

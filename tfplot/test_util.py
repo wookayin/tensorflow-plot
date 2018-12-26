@@ -11,7 +11,11 @@ from termcolor import cprint
 
 
 def hash_image(img):
-    return hashlib.sha1(img.tobytes()).hexdigest()
+    if isinstance(img, bytes):
+        return hashlib.sha1(img).hexdigest()
+    else:
+        return hashlib.sha1(img.tobytes()).hexdigest()
+
 
 class TestcaseBase(tf.test.TestCase):
 
