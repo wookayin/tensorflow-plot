@@ -74,7 +74,7 @@ class TestSummary(test_util.TestcaseBase):
         self.assertEquals(test_util.hash_image(png), 'dbb47a3281626678894084fa58066f69a2570df4')
 
 
-    def test_summary_wrap(self):
+    def test_summary_wrap_batch(self):
         '''tests tfplot.summary.wrap'''
 
         summary_heatmap = tfplot.summary.wrap(sns.heatmap, figsize=(2, 2), cmap='jet',
@@ -94,6 +94,24 @@ class TestSummary(test_util.TestcaseBase):
         if sys.platform == 'darwin':
             imgcat(s.value[0].image.encoded_image_string)
             imgcat(s.value[1].image.encoded_image_string)
+
+
+    def test_summary_wrap_nobatch(self):
+        '''tests tfplot.summary.wrap'''
+
+        summary_heatmap = tfplot.summary.wrap(sns.heatmap, figsize=(2, 2), cmap='jet',
+                                              batch=False)
+
+        summary_op = summary_heatmap("heatmap_1",
+                                     tf.constant(np.random.RandomState(42).normal(size=[4, 4])),
+                                     )
+        s = self._execute_summary_op(summary_op)
+
+        self.assertEquals(len(s.value), 1)
+        self.assertEquals(s.value[0].tag, ('heatmap_1/image/0'))
+
+        if sys.platform == 'darwin':
+            imgcat(s.value[0].image.encoded_image_string)
 
 
 

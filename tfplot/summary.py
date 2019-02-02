@@ -148,6 +148,9 @@ def wrap(plot_func, _sentinel=None,
             raise TypeError("summary_name should be a string")
 
         plot_op = factory_fn(*args, **kwargs_call)
+        if not batch:
+            # add batch dimension expected by tf.summary.image
+            plot_op = tf.expand_dims(plot_op, axis=0)
         return tf.summary.image(summary_name, plot_op,
                                 max_outputs=kwargs_call.pop('max_outputs', 3),
                                 collections=kwargs_call.pop('collections', None),
