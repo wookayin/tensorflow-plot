@@ -12,13 +12,10 @@ BUILDDIR      = _build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-# Local sphinx build
-# Auto-refresh whenever file is updated; requires fswatch (brew) and http-server (npm)
+# Local sphinx build (autobuild)
 dev:
-	trap 'pkill -9 -g $$$$' SIGINT SIGTERM EXIT;
-	http-server _build/html/ &
-	fswatch --event Updated ../tfplot/ ./ --exclude _build | xargs -n 1 -I{} make html;
-	wait;
+	# Requires pip install sphinx-autobuild
+	PYTHONPATH=".." sphinx-autobuild "$(SOURCEDIR)" "$(BUILDDIR)" -z ../tfplot/ $(SPHINXOPTS)
 
 .PHONY: help dev Makefile
 
