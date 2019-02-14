@@ -1,13 +1,20 @@
 .. _api_tfplot:
 
 :mod:`tfplot`
--------------
+=============
 
 .. automodule:: tfplot
     :members:
 
-.. autofunction:: tfplot.plot
-.. autofunction:: tfplot.plot_many
+Wrapper functions
+-----------------
+
+.. autofunction:: tfplot.autowrap
 .. autofunction:: tfplot.wrap
 .. autofunction:: tfplot.wrap_axesplot
-.. autofunction:: tfplot.autowrap
+
+Raw Plot Ops
+------------
+
+.. autofunction:: tfplot.plot
+.. autofunction:: tfplot.plot_many

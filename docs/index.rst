@@ -14,10 +14,11 @@ Especially, we can easily any plot and see the result image as an image summary 
 
 
 .. toctree::
-    :caption: Table of Contents
+   :caption: Table of Contents
+   :maxdepth: 2
 
-    guide/index
-    api/index
+   guide/index
+   api/index
 
 
 Indices and Tables
