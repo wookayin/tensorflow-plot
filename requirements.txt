@@ -2,7 +2,8 @@
 
 # test/dev environment
 tensorflow >=1.12.0, <2.0
-scikit-image >=0.14
+#Cython >= 0.23.4
+#scikit-image >=0.14
 
 # documentation building
 nbsphinx
