@@ -1,5 +1,5 @@
-TensorFlow Plot
-===============
+TensorFlow Plot (tfplot)
+========================
 
 [![pypi](https://img.shields.io/pypi/v/tensorflow-plot.svg?maxAge=86400)][pypi_tfplot]
 [![Documentation Status](https://readthedocs.org/projects/tensorflow-plot/badge/?version=latest)][documentation]
@@ -115,13 +115,14 @@ pip install git+https://github.com/wookayin/tensorflow-plot.git@master
 Note
 ----
 
-### Some comments
+### Some comments on Speed
 
-Matplotlib operations can be *very* slow as Matplotlib runs in python, so please watch out for runtime performance.
+* Matplotlib operations can be **very** slow as Matplotlib runs in python rather than native code,
+so please watch out for runtime speed.
 There is still a room for improvement, which will be addressed in the near future.
 
-Moreover, it might be also a good idea to draw plots from the main code (rather than having a TF op) and add them as image summaries.
-Please use this library with your best discernment.
+* Moreover, it might be also a good idea to draw plots from the main code (rather than having a TF op) and add them as image summaries.
+Please use this library at your best discernment.
 
 ### Thread-safety issue
 
@@ -167,6 +168,12 @@ Alternatively, you can just take advantage of automatic injection of `fig` and/o
 [documentation]: http://tensorflow-plot.readthedocs.io/en/latest/
 
 [tfplot-autowrap]: https://tensorflow-plot.readthedocs.io/en/latest/api/tfplot.html#tfplot.autowrap
+
+
+### TensorFlow compatibility
+
+Currently, `tfplot` is compatible with TensorFlow 1.x series.
+Support for eager execution and TF 2.0 will be coming soon!
 
 
 License
