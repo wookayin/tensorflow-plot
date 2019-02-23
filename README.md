@@ -96,7 +96,17 @@ Please take a look at the [the showcase][examples-showcase] or [examples directo
 
 ### Usage: Manually add summary protos
 
-TODO: Add documentation here.
+```python
+import tensorboard as tb
+fig, ax = ...
+
+# Get RGB image manually or by executing plot ops.
+embedding_plot = sess.run(plot_op)                 # ndarray [H, W, 3] uint8
+embedding_plot = tfplot.figure_to_array(fig)       # ndarray [H, W, 3] uint8
+
+summary_pb = tb.summary.image_pb('plot_embedding', [embedding_plot])
+summary_writer.write_add_summary(summary_pb, global_step=global_step)
+```
 
 
 Installation
