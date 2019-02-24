@@ -97,6 +97,7 @@ setup(
     version=__version__,
     description='TensorFlow Plot',
     long_description=readme,
+    long_description_content_type='text/markdown',
     license='MIT License',
     url='https://github.com/wookayin/tensorflow-plot',
     author='Jongwook Choi',
