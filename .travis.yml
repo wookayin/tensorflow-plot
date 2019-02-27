@@ -1,10 +1,22 @@
 language: python
 matrix:
   include:
+    # TF 1.x series
     - python: "2.7"
+      env: TF_PACKAGE="tensorflow >= 1.12.0, <2.0"
     - python: "3.4"
+      env: TF_PACKAGE="tensorflow >= 1.12.0, <2.0"
     - python: "3.5"
+      env: TF_PACKAGE="tensorflow >= 1.12.0, <2.0"
     - python: "3.6"
+      env: TF_PACKAGE="tensorflow >= 1.12.0, <2.0"
+
+    # TF 2.0 nightly
+    - python: "2.7"
+      env: TF_PACKAGE="tf-nightly-2.0-preview"
+    - python: "3.6"
+      env: TF_PACKAGE="tf-nightly-2.0-preview"
+
 #    - python: "3.7"
 #      dist: xenial
 #      sudo: required
@@ -12,6 +24,10 @@ matrix:
 install:
   - pip install --only-binary=numpy,scipy,pandas numpy scipy pandas
   - pip install -r requirements.txt
+  - pip install "$TF_PACKAGE"
+
+before_script:
+  - python -c "import tensorflow as tf; print('TensorFlow '+ tf.__version__)"
 
 script:
   - PYTEST_ADDOPTS="-s" python setup.py test
