@@ -13,7 +13,13 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 import six
 from io import BytesIO
-from tensorflow import Summary
+
+try:
+    from tensorflow import Summary
+except ImportError:
+    # TF 2.0
+    import tensorflow
+    Summary = tensorflow.compat.v1.Summary
 
 from . import mpl_figure
 

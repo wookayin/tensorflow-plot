@@ -12,7 +12,6 @@ import re
 
 import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # filter out INFO and WARN logs
-tf.logging.set_verbosity(tf.logging.ERROR)
 
 import matplotlib
 matplotlib.rcParams['figure.figsize'] = (2.5, 2.5)
@@ -24,6 +23,8 @@ import numpy as np
 
 import tfplot.figure
 import tfplot.test_util as test_util
+
+test_util.configure_tf_verbosity()
 
 
 class TestWrap(test_util.TestcaseBase):

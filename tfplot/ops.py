@@ -8,8 +8,9 @@ import six
 import re
 import types
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
+from tensorflow.python.framework import tensor_util
 
 from . import figure
 from . import util
@@ -17,6 +18,17 @@ from .util import merge_kwargs, decode_bytes_if_necessary
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
+
+
+from distutils.version import LooseVersion
+if LooseVersion(tf.__version__) < LooseVersion("2.0"):
+    # TF 1.x
+    _TF_2_ = False
+    py_func = tf.py_func
+else:
+    # TF 2.x
+    _TF_2_ = True
+    py_func = tf.py_function  # pylint: disable=no-member
 
 
 def plot(plot_func, in_tensors, name='Plot',
@@ -63,6 +75,10 @@ def plot(plot_func, in_tensors, name='Plot',
 
     def _render_image(*args):
         # `args` is (a tuple of) python values
+        args = tuple(
+            arg.numpy() if tensor_util.is_tensor(arg) else arg \
+            for arg in args
+        )
 
         # for tf.string tensors, decode into unicode if necessary.
         args = tuple(
@@ -80,8 +96,8 @@ def plot(plot_func, in_tensors, name='Plot',
         image = figure.to_array(fig)
         return image
 
-    im = tf.py_func(_render_image, in_tensors, Tout=tf.uint8,
-                    name=name)
+    im = py_func(_render_image, in_tensors, Tout=tf.uint8,
+                 name=name)
     im.set_shape([None, None, 4])
     return im
 

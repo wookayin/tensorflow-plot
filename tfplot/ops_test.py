@@ -14,16 +14,19 @@ import hashlib
 import six
 
 import numpy as np
+import scipy.misc
+
 import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # filter out INFO and WARN logs
-tf.logging.set_verbosity(tf.logging.ERROR)
 
 import matplotlib
 matplotlib.rcParams['figure.figsize'] = (2.5, 2.5)
 
 import tfplot.figure
 import tfplot.test_util as test_util
-import scipy.misc
+
+test_util.configure_tf_verbosity()
+
 
 
 
@@ -133,7 +136,7 @@ class TestOps(test_util.TestcaseBase):
         # make a fake batch
         batch_size = 3
         image_tensor = tf.constant(scipy.misc.face())
-        attention_batch = tf.random_gamma([batch_size, 7, 7], alpha=0.3, seed=42)
+        attention_batch = tf.random.gamma([batch_size, 7, 7], alpha=0.3, seed=42)
         image_batch = tf.tile(tf.expand_dims(image_tensor, 0),
                               [batch_size, 1, 1, 1], name='image_batch') # copy
 

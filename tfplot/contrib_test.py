@@ -11,7 +11,6 @@ import scipy.misc
 import numpy as np
 import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # filter out INFO and WARN logs
-tf.logging.set_verbosity(tf.logging.ERROR)
 
 import matplotlib
 matplotlib.rcParams['figure.figsize'] = (2.5, 2.5)
@@ -21,6 +20,8 @@ from imgcat import imgcat
 
 import tfplot.contrib
 import tfplot.test_util as test_util
+
+test_util.configure_tf_verbosity()
 
 
 class TestContrib(test_util.TestcaseBase):

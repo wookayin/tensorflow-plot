@@ -11,6 +11,9 @@ from . import ops
 from . import wrapper
 
 
+summary_image_v1 = tf.compat.v1.summary.image
+
+
 def plot(name, plot_func, in_tensors, collections=None, **kwargs):
     """
     Create a TensorFlow op that outpus a `Summary` protocol buffer,
@@ -39,7 +42,7 @@ def plot(name, plot_func, in_tensors, collections=None, **kwargs):
     with tf.name_scope(name):
         im = ops.plot(plot_func, in_tensors, **kwargs)
         im = tf.expand_dims(im, axis=0)
-        summary = tf.summary.image(name="ImageSummary", tensor=im, collections=collections)
+        summary = summary_image_v1(name="ImageSummary", tensor=im, collections=collections)
     return summary
 
 
@@ -78,7 +81,7 @@ def plot_many(name, plot_func, in_tensors,
         im_batch = ops.plot_many(plot_func, in_tensors, name=scope,
                                  max_outputs=max_outputs,
                                  **kwargs)
-        summary = tf.summary.image(name="ImageSummary", tensor=im_batch,
+        summary = summary_image_v1(name="ImageSummary", tensor=im_batch,
                                    max_outputs=max_outputs,
                                    collections=collections)
     return summary
@@ -151,7 +154,7 @@ def wrap(plot_func, _sentinel=None,
         if not batch:
             # add batch dimension expected by tf.summary.image
             plot_op = tf.expand_dims(plot_op, axis=0)
-        return tf.summary.image(summary_name, plot_op,
+        return summary_image_v1(summary_name, plot_op,
                                 max_outputs=kwargs_call.pop('max_outputs', 3),
                                 collections=kwargs_call.pop('collections', None),
                                 )

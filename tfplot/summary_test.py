@@ -12,7 +12,13 @@ import re
 
 import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # filter out INFO and WARN logs
-tf.logging.set_verbosity(tf.logging.ERROR)
+
+try:
+    from tensorflow import Summary
+except ImportError:
+    # TF 2.0
+    import tensorflow
+    Summary = tensorflow.compat.v1.Summary
 
 import matplotlib
 matplotlib.rcParams['figure.figsize'] = (2.5, 2.5)
@@ -25,8 +31,7 @@ import numpy as np
 import tfplot.summary
 import tfplot.test_util as test_util
 
-
-Summary = tf.Summary
+test_util.configure_tf_verbosity()
 
 
 class TestSummary(test_util.TestcaseBase):
@@ -46,7 +51,7 @@ class TestSummary(test_util.TestcaseBase):
 
             # check ret is a byte
             self.assertIsInstance(ret, bytes)
-            summary = tf.Summary()
+            summary = Summary()
             summary.ParseFromString(ret)
             return summary
 
