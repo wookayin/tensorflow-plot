@@ -7,6 +7,7 @@ from __future__ import print_function
 import six
 import re
 import types
+import logging
 
 import numpy as np
 import tensorflow as tf
@@ -29,6 +30,9 @@ else:
     # TF 2.x
     _TF_2_ = True
     py_func = tf.py_function  # pylint: disable=no-member
+
+
+logger = logging.getLogger(__name__)
 
 
 def plot(plot_func, in_tensors, name='Plot',
@@ -93,7 +97,17 @@ def plot(plot_func, in_tensors, name='Plot',
                             "but given {}".format(type(fig)))
 
         # render fig into numpy array.
-        image = figure.to_array(fig)
+        try:
+            image = figure.to_array(fig)
+        except KeyError as e:
+            # matplotlib is not thread-safe (see issue #17)
+            logger.warn("KeyError during to_array(): {}".format(str(e)))
+
+            # To workaround this, simply fallback to return a black screen
+            w, h = image = fig.canvas.get_width_height()
+            image = np.zeros([h, w, 4], dtype=np.uint8)
+            return image
+
         return image
 
     im = py_func(_render_image, in_tensors, Tout=tf.uint8,
