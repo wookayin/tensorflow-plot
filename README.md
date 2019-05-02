@@ -168,7 +168,7 @@ to use inside plot functions.
 Alternatively, you can just take advantage of automatic injection of `fig` and/or `ax`.
 
 
-[pypi_tfplot]: https://pypi.python.org/pypi/tfplot
+[pypi_tfplot]: https://pypi.python.org/pypi/tensorflow-plot
 [matplotlib]: http://matplotlib.org/
 [tensorflow]: https://www.tensorflow.org/
 [tensorboard]: https://www.tensorflow.org/get_started/summaries_and_tensorboard
