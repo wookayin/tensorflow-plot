@@ -99,13 +99,13 @@ class TestOps(test_util.TestcaseBase):
         # (a) default execution
         plot_op = tfplot.plot(_overlay_attention, [attention_tensor, image_tensor])
         r = self._execute_plot_op(plot_op, print_image=True)
-        self.assertEquals(test_util.hash_image(r), 'c2d64dedd4aa54218e6df95bfeb03bbc17bd17fa')
+        self.assertEqual(test_util.hash_image(r), 'c2d64dedd4aa54218e6df95bfeb03bbc17bd17fa')
 
         # (b) override cmap and alpha
         plot_op = tfplot.plot(_overlay_attention, [attention_tensor, image_tensor],
                               cmap='gray', alpha=0.8)
         r = self._execute_plot_op(plot_op, print_image=True)
-        self.assertEquals(test_util.hash_image(r), '31c8029aed7bbafe37bb8c451a3220d573d2d0e0')
+        self.assertEqual(test_util.hash_image(r), '31c8029aed7bbafe37bb8c451a3220d573d2d0e0')
 
         # TODO: how to compare images?
 
@@ -143,4 +143,4 @@ class TestOps(test_util.TestcaseBase):
         plot_op = tfplot.plot_many(_overlay_attention, [attention_batch, image_batch])
         r = self._execute_plot_op(plot_op, print_image=False)
         #for i in range(3): imgcat(r[i])
-        self.assertEquals(r.shape, (3, 400, 400, 4))
+        self.assertEqual(r.shape, (3, 400, 400, 4))

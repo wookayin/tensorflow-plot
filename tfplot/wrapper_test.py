@@ -116,7 +116,7 @@ class TestWrap(test_util.TestcaseBase):
                                      xticklabels=False, yticklabels=False)
         op = tf_heatmap(tf.constant(np.eye(5)))
         r = self._execute_plot_op(op)
-        self.assertEquals(test_util.hash_image(r), '528047f739fe6dc4ba4ec1738b3a44b5bc95ecff')
+        self.assertEqual(test_util.hash_image(r), '528047f739fe6dc4ba4ec1738b3a44b5bc95ecff')
 
     def test_autowrap_call_extrakwargs_unknownargswillerror(self):
         '''additional kwargs should be applied to the py.func,

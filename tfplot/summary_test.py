@@ -69,14 +69,14 @@ class TestSummary(test_util.TestcaseBase):
 
         # pylint: disable=no-member
         self.assertTrue(s.value[0].tag.startswith('text/hello'))
-        self.assertEquals(s.value[0].image.width, 300)    # default dpi = 100
-        self.assertEquals(s.value[0].image.height, 200)   # default dpi = 100
+        self.assertEqual(s.value[0].image.width, 300)    # default dpi = 100
+        self.assertEqual(s.value[0].image.height, 200)   # default dpi = 100
         png = s.value[0].image.encoded_image_string
         # pylint: enable=no-member
 
         if sys.platform == 'darwin':
             imgcat(png)
-        self.assertEquals(test_util.hash_image(png), 'dbb47a3281626678894084fa58066f69a2570df4')
+        self.assertEqual(test_util.hash_image(png), 'dbb47a3281626678894084fa58066f69a2570df4')
 
 
     def test_summary_wrap_batch(self):
@@ -92,9 +92,9 @@ class TestSummary(test_util.TestcaseBase):
                                      )
         s = self._execute_summary_op(summary_op)
 
-        self.assertEquals(len(s.value), 2)
-        self.assertEquals(s.value[0].tag, ('heatmap_1/image/0'))
-        self.assertEquals(s.value[1].tag, ('heatmap_1/image/1'))
+        self.assertEqual(len(s.value), 2)
+        self.assertEqual(s.value[0].tag, ('heatmap_1/image/0'))
+        self.assertEqual(s.value[1].tag, ('heatmap_1/image/1'))
 
         if sys.platform == 'darwin':
             imgcat(s.value[0].image.encoded_image_string)
@@ -112,8 +112,8 @@ class TestSummary(test_util.TestcaseBase):
                                      )
         s = self._execute_summary_op(summary_op)
 
-        self.assertEquals(len(s.value), 1)
-        self.assertEquals(s.value[0].tag, ('heatmap_1/image/0'))
+        self.assertEqual(len(s.value), 1)
+        self.assertEqual(s.value[0].tag, ('heatmap_1/image/0'))
 
         if sys.platform == 'darwin':
             imgcat(s.value[0].image.encoded_image_string)
