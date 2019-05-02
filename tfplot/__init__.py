@@ -17,4 +17,4 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
 
-__version__ = '0.4.0.dev'
+__version__ = '0.3.1'
