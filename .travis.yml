@@ -1,25 +1,29 @@
 language: python
 matrix:
   include:
-    # TF 1.x series
-    - python: "2.7"
-      env: TF_PACKAGE="tensorflow >= 1.12.0, <2.0"
-    - python: "3.4"
-      env: TF_PACKAGE="tensorflow >= 1.12.0, <2.0"
-    - python: "3.5"
-      env: TF_PACKAGE="tensorflow >= 1.12.0, <2.0"
+    # TF 1.x series (old)
     - python: "3.6"
-      env: TF_PACKAGE="tensorflow >= 1.12.0, <2.0"
+      env: TF_PACKAGE="tensorflow == 1.13.2"
+
+    # TF 1.x series (latest, 1.14 has v1/v2-compat APIs)
+    - python: "2.7"
+      env: TF_PACKAGE="tensorflow >= 1.14.0, <2.0"
+    - python: "3.4"
+      env: TF_PACKAGE="tensorflow >= 1.14.0, <2.0"
+    - python: "3.5"
+      env: TF_PACKAGE="tensorflow >= 1.14.0, <2.0"
+    - python: "3.6"
+      env: TF_PACKAGE="tensorflow >= 1.14.0, <2.0"
+    - python: "3.7"
+      env: TF_PACKAGE="tensorflow >= 1.14.0, <2.0"
+      dist: xenial
+      sudo: required
 
     # TF 2.0 nightly
     - python: "2.7"
       env: TF_PACKAGE="tf-nightly-2.0-preview"
     - python: "3.6"
       env: TF_PACKAGE="tf-nightly-2.0-preview"
-
-#    - python: "3.7"
-#      dist: xenial
-#      sudo: required
 
 install:
   - pip install --only-binary=numpy,scipy,pandas numpy scipy pandas
