@@ -40,8 +40,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     fig = FigureClass(**fig_kw)
 
     # attach a new Agg canvas
-    if fig.canvas is None:
-        FigureCanvasAgg(fig)
+    FigureCanvasAgg(fig)
 
     # create subplots, e.g. fig.subplots() in matplotlib 2.1+
     if not hasattr(fig, 'subplots'):
@@ -80,17 +79,22 @@ def to_array(fig):
       the figure.
     """
 
-    # attach a new canvas if not exists
-    if fig.canvas is None:
-        FigureCanvasAgg(fig)
+    # attach a new agg canvas
+    _old_canvas = fig.canvas
+    try:
+        canvas = FigureCanvasAgg(fig)
 
-    fig.canvas.draw()
-    w, h = fig.canvas.get_width_height()
+        canvas.draw()
+        w, h = canvas.get_width_height()
 
-    img = np.frombuffer(fig.canvas.tostring_argb(), dtype=np.uint8)
-    img = img.reshape((h, w, 4))
-    img = img[:, :, (1, 2, 3, 0)]   # argb -> rgba
-    return img
+        img = np.frombuffer(canvas.tostring_argb(), dtype=np.uint8)
+        img = img.reshape((h, w, 4))
+        img = img[:, :, (1, 2, 3, 0)]   # argb -> rgba
+        return img
+
+    finally:
+        # restore to the previous canvas, if any
+        fig.set_canvas(_old_canvas)
 
 
 def to_summary(fig, tag):
@@ -118,23 +122,27 @@ def to_summary(fig, tag):
     if not isinstance(tag, six.string_types):
         raise TypeError("tag must be a string type")
 
-    # attach a new canvas if not exists
-    if fig.canvas is None:
-        FigureCanvasAgg(fig)
+    # attach a new agg canvas
+    _old_canvas = fig.canvas
+    try:
+        canvas = FigureCanvasAgg(fig)
 
-    fig.canvas.draw()
-    w, h = fig.canvas.get_width_height()
+        canvas.draw()
+        w, h = canvas.get_width_height()
 
-    # get PNG data from the figure
-    png_buffer = BytesIO()
-    fig.canvas.print_png(png_buffer)
-    png_encoded = png_buffer.getvalue()
-    png_buffer.close()
+        # get PNG data from the figure
+        png_buffer = BytesIO()
+        canvas.print_png(png_buffer)
+        png_encoded = png_buffer.getvalue()
+        png_buffer.close()
 
-    summary_image = Summary.Image(height=h, width=w, colorspace=4,  # RGB-A
-                                  encoded_image_string=png_encoded)
-    summary = Summary(value=[Summary.Value(tag=tag, image=summary_image)])
-    return summary
+        summary_image = Summary.Image(height=h, width=w, colorspace=4,  # RGB-A
+                                    encoded_image_string=png_encoded)
+        summary = Summary(value=[Summary.Value(tag=tag, image=summary_image)])
+        return summary
+
+    finally:
+        fig.canvas = _old_canvas
 
 
 __all__ = (
