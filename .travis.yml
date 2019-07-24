@@ -3,6 +3,8 @@ matrix:
   include:
     # TF 1.x series (old)
     - python: "3.6"
+      env: TF_PACKAGE="tensorflow == 1.12.3"
+    - python: "3.6"
       env: TF_PACKAGE="tensorflow == 1.13.2"
 
     # TF 1.x series (latest, 1.14 has v1/v2-compat APIs)

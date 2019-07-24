@@ -11,7 +11,10 @@ from . import ops
 from . import wrapper
 
 
-summary_image_v1 = tf.compat.v1.summary.image
+try:
+    summary_image_v1 = tf.compat.v1.summary.image
+except AttributeError:
+    summary_image_v1 = tf.summary.image
 
 
 def plot(name, plot_func, in_tensors, collections=None, **kwargs):
