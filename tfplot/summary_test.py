@@ -43,7 +43,7 @@ class TestSummary(test_util.TestcaseBase):
         '''
         Execute the summary op, and parse the result into Summary proto object.
         '''
-        with self.test_session() as sess:
+        with self.cached_session() as sess:
             cprint("\n >>> " + str(op), color='magenta')
             self.assertIsInstance(op, tf.Tensor)
             self.assertTrue(op.dtype, tf.string)

@@ -46,3 +46,7 @@ class TestcaseBase(tf.test.TestCase):
                 imgcat(ret)
                 print('SHA1: ' + hash_image(ret))
             return ret
+
+
+if not hasattr(TestcaseBase, 'cached_session'):
+    TestcaseBase.cached_session = TestcaseBase.test_session

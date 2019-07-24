@@ -136,7 +136,11 @@ class TestOps(test_util.TestcaseBase):
         # make a fake batch
         batch_size = 3
         image_tensor = tf.constant(scipy.misc.face())
-        attention_batch = tf.random.gamma([batch_size, 7, 7], alpha=0.3, seed=42)
+        try:
+            attention_batch = tf.random.gamma([batch_size, 7, 7], alpha=0.3, seed=42)
+        except AttributeError:  # legacy TF versions
+            attention_batch = tf.random_gamma([batch_size, 7, 7], alpha=0.3, seed=42)
+
         image_batch = tf.tile(tf.expand_dims(image_tensor, 0),
                               [batch_size, 1, 1, 1], name='image_batch') # copy
 
